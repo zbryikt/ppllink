@@ -10,56 +10,49 @@ class DB(object):
         self.db = pymongo.Connection().ppllink
 
     def names(self):
-        return list(self.db.node.find({},{'name':1, '_id':0}))
+        return list(self.db.nodes.find({},{'name':1, '_id':0}))
 
     def node(self, name):
-        return self.db.node.find_one({'name':name})
+        return self.db.nodes.find_one({'name':name})
 
-    def link(self, src, dst, relation, bidirect):
+    def link(self, src, des, relation, bidirect):
         data = {
             'src':self.node(src)['id'],
-            'dst':self.node(dst)['id'],
+            'des':self.node(des)['id'],
             'relation':relation,
             'bidirect':bool(bidirect)
         }
-        self.db.link.save(data)
+        self.db.links.save(data)
 
     def dump(self):
         return {
-            'node':list(self.db.node.find({},{'_id':0})),
-            'link':list(self.db.link.find({},{'_id':0}))
+            'nodes':list(self.db.nodes.find({},{'_id':0})),
+            'links':list(self.db.links.find({},{'_id':0}))
         }
 
     def subgraph(self, name, level):
         queue = [self.node(name)]
-        nodes = [self.node(name)]
+        nodes = []
         links = []
         for i in range(level):
-            while queue:
-                node = queue.pop()
+            to_search = queue[:]
+            queue = []
+            for node in to_search:
                 if node in nodes:
-                    continue
-                name = node['name']
-                for link in self.db.link.find({'src':name}):
-                    other = self.db.node.find_one({'id':link['dst']})
-                    if other not in nodes:
-                        nodes.append(other)
-                    if other not in queue:
-                        queue.append(other)
-                    if link not in links:
-                        links.append(link)
-                for link in self.db.link.find({'dst':name}):
-                    other = self.db.node.find_one({'id':link['src']})
-                    if other not in nodes:
-                        nodes.append(other)
-                    if other not in queue:
-                        queue.append(other)
-                    if link not in links:
-                        links.append(link)
+                    nodes.append(node)
+                for first, second in [('src', 'des'), ('des', 'src')]:
+                    for link in self.db.links.find({first:node['id']}):
+                        other = self.db.nodes.find_one({'id':link[second]})
+                        if other not in nodes:
+                            nodes.append(other)
+                        if other not in queue:
+                            queue.append(other)
+                        if link not in links:
+                            links.append(link)
         for doc in nodes + links:
             if '_id' in doc:
                 doc.pop('_id')
-        return {'node':nodes, 'link':links}
+        return {'nodes':nodes, 'links':links}
 
 @get('/')
 def root():
@@ -79,10 +72,10 @@ def query(name, level=6):
     '''Return json of subgraph.'''
     return json.dumps(DB().subgraph(name, int(level)))
 
-@post('/link/<src>/<dst>/<relation>/<bidirect>')
-def link(src, dst, relation, bidirect=False):
+@post('/link/<src>/<des>/<relation>/<bidirect>')
+def link(src, des, relation, bidirect=False):
     bidirect = True if bidirect.lower() in ['1', 'true', 'yes'] else False
-    DB().link(src, dst, relation, bidirect)
+    DB().links(src, des, relation, bidirect)
     return 'ok'
 
 @get('/css/<filepath:path>')
