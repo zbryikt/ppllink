@@ -3,7 +3,7 @@
 import json
 
 import pymongo
-from bottle import run, post, get, template, debug, static_file
+from bottle import run, post, get, template, debug, static_file, request
 
 class DB(object):
     def __init__(self):
@@ -14,6 +14,9 @@ class DB(object):
 
     def node(self, name):
         return self.db.nodes.find_one({'name':name})
+
+    def add(self, name, title, tags=[]):
+        self.db.nodes.save({'name':name, 'title':title, 'tags':tags})
 
     def link(self, src, des, relation, bidirect):
         data = {
@@ -38,7 +41,7 @@ class DB(object):
             to_search = queue[:]
             queue = []
             for node in to_search:
-                if node in nodes:
+                if node not in nodes:
                     nodes.append(node)
                 for first, second in [('src', 'des'), ('des', 'src')]:
                     for link in self.db.links.find({first:node['id']}):
@@ -58,14 +61,14 @@ class DB(object):
 def root():
     return template('index.html')
 
-@get('/names')
-def names():
-    return json.dumps(DB().names())
-
 @get('/dump')
 def dump():
     '''for debug'''
     return '<pre>%s</pre>' % json.dumps(DB().dump(), indent=2)
+
+@get('/names')
+def names():
+    return json.dumps(DB().names())
 
 @get('/query/<name>/<level>')
 def query(name, level=6):
@@ -76,6 +79,12 @@ def query(name, level=6):
 def link(src, des, relation, bidirect=False):
     bidirect = True if bidirect.lower() in ['1', 'true', 'yes'] else False
     DB().links(src, des, relation, bidirect)
+    return 'ok'
+
+@post('/add/<name>/<titiel>')
+def add(name, title):
+    tags = request.forms.tags or []
+    DB().add(name, title, tags)
     return 'ok'
 
 @get('/css/<filepath:path>')
