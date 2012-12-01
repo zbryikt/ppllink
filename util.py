@@ -18,14 +18,14 @@ def main():
 
     if sys.argv[1] == 'import':
         data = json.load(open(filename))
-        for node in data.get('node'):
-            db.node.save(node)
-        for link in data.get('link'):
-            db.link.save(link)
+        for node in data.get('nodes'):
+            db.nodes.save(node)
+        for link in data.get('links'):
+            db.links.save(link)
     elif sys.argv[1] == 'export':
-        nodes = list(db.node.find({}, {'_id':0}))
-        links = list(db.link.find({}, {'_id':0}))
-        json.dump({'node':nodes, 'link':links}, open(filename, 'w'), indent=2)
+        nodes = list(db.nodes.find({}, {'_id':0}))
+        links = list(db.links.find({}, {'_id':0}))
+        json.dump({'nodes':nodes, 'links':links}, open(filename, 'w'), indent=2)
     else:
         assert 0
 
