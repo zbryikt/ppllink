@@ -9,3 +9,9 @@
   stroke-opacity: .6;
 }
 
+.content {
+  margin-left:10px;background:none;
+}
+#name-chooser {
+  width:200px;
+}
