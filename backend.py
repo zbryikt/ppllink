@@ -1,5 +1,51 @@
 #!/usr/bin/env python
 
+"""
+REST API:
+
+GET '/names'
+    list names of all nodes.
+
+    Example:
+        GET '/names'
+    Result:
+        ["foo", "bar"]
+
+GET '/query'
+    usage: GET '/query/<name>/<level>'
+    get subgraph which centers at <name> within <level>-level relations
+
+    Exapmle:
+        GET '/query/foo/1'
+    Result:
+        {
+            "nodes":[{"id":1, "name":"foo"}, {"id":2, "name":"bar"}],
+            "links":[{"src":1, "des":2, "relation":"foobar", bidirect:true}]
+        }
+
+POST '/add/'
+    usage: POST '/add/<name>'
+    post-data:
+        title = title of the node
+        tags = list of tags in json format
+    add a node with <name>, <title>, and optional tags
+
+    Example:
+        POST '/add/foo' data={"title":"test", "tags"="[\"tag1\", \"tag2\"]"}
+    Result:
+        ok
+
+POST '/link'
+    usage: POST '/link/<src>/<des>/<relation>/<bidirect>'
+    create a relation from name <src> to name <des> with description <relation> and boolean <bidirect>
+
+    Example:
+        POST '/link/foo/bar/foobar/true'
+    Result:
+        ok
+
+"""
+
 import json
 
 import pymongo
@@ -77,13 +123,14 @@ def query(name, level=6):
 
 @post('/link/<src>/<des>/<relation>/<bidirect>')
 def link(src, des, relation, bidirect=False):
-    bidirect = True if bidirect.lower() in ['1', 'true', 'yes'] else False
+    bidirect = True if bidirect.lower() in ['1', 'true', 'yes', 'bidirect'] else False
     DB().links(src, des, relation, bidirect)
     return 'ok'
 
-@post('/add/<name>/<titiel>')
-def add(name, title):
-    tags = request.forms.tags or []
+@post('/add/<name>')
+def add(name):
+    title = request.forms.title or ''
+    tags = json.loads(request.forms.tags or '[]')
     DB().add(name, title, tags)
     return 'ok'
 
