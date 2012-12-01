@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+# TODO
+#   error handling
+#   unit test
+
 """
 REST API:
 
@@ -49,7 +53,7 @@ POST '/link'
 import json
 
 import pymongo
-from bottle import run, post, get, template, debug, static_file, request
+from bottle import run, post, get, template, debug, static_file, request, redirect
 
 class DB(object):
     def __init__(self):
@@ -105,7 +109,11 @@ class DB(object):
 
 @get('/')
 def root():
-    return template('index.html')
+    redirect('/index.html')
+
+@get('/<filename:re:.*\.html>')
+def html(filename):
+    return static_file(filename, root='.')
 
 @get('/dump')
 def dump():
