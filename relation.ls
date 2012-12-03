@@ -7,7 +7,7 @@ force = d3.layout.force!
     .charge       charge
     .linkDistance 100
     .friction     0.6
-    .size         [width height]
+    .size         [width,height]
 
 svg = d3.selection \body .append \svg
     .attr \width, width
