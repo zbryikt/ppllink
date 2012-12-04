@@ -51,7 +51,7 @@ POST '/link'
 """
 
 import json
-
+import socket
 import pymongo
 from bottle import run, post, get, template, debug, static_file, request, redirect
 
@@ -155,5 +155,5 @@ def send_js(filepath):
     return static_file(filepath, root='./js')
 
 debug(True)
-run(reloader=True)
+run(host=socket.gethostname(), port=8080, reloader=True)
 
