@@ -13,14 +13,37 @@ html(lang="en")
     script(type="text/javascript",src="http://d3js.org/d3.v3.min.js")
     script(type="text/javascript",src="js/select2.js")
   body
-    div.navbar
-      div.navbar-inner
-        a.brand(href="#") 公眾人物關係圖產生器
-        ul.nav
-          li
-            a(href="#") 產生圖表
-          li
-            a(href="#") 建立關係
-    div.content
-      select#name-chooser
+    .container
+      div.navbar.navbar-fixed-top
+        div.navbar-inner
+          a.brand(href="#") &nbsp; 公眾人物關係圖產生器
+          ul.nav
+            li
+              a(href="#") 產生圖表
+            li
+              a(href="#") 建立關係
+      div.navbar(style="margin-top:60px")
+        div.navbar-inner
+          .container
+            a.btn.btn-navbar(data-toggle="collapse",data-target=".nav-collapse")
+              span.icon-bar
+            a.brand(href="#",style="padding:7px 0 0 5px")
+              i.icon-th(style="width:28px;height:26px;background:url(img/glyphicons.png) -288px -720px;")
+            ul.nav
+              li: a: i.icon-user
+              li: div(style="margin-top:7px")
+                  select#name-chooser()
+              li.divider-vertical
+              li.dropdown
+                a.dropdown-toggle(data-toggle="dropdown",href="#")
+                  i.icon-magnet
+                  span.caret
+                ul#toggle-gravity.dropdown-menu
+                  li.active: a(tabindex="-1",href="#",onclick="toggleGravity(1)") Low
+                  li: a(tabindex="-1",href="#",onclick="toggleGravity(2)") Medium
+                  li: a(tabindex="-1",href="#",onclick="toggleGravity(3)") High
+                  li: a(tabindex="-1",href="#",onclick="toggleGravity(4)") Tight
+              li#toggle-play: a(herf="#",onclick="togglePlay()"): i.icon-pause
+              li#toggle-lock: a(href="#",onclick="toggleLock()"): i.icon-certificate
+    #content
     script(type="text/javascript",src="js/relation.js")

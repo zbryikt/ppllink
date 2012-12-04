@@ -1,7 +1,5 @@
 
 .node {
-  stroke: #fff;
-  stroke-width: 1.5px;
 }
 
 .link {
@@ -9,9 +7,11 @@
   stroke-opacity: .6;
 }
 
-.content {
-  margin-left:10px;background:none;
-}
 #name-chooser {
   width:200px;
+}
+
+#content {
+  border: 1px solid #ddd;
+  width:90%;margin:0 5% 0 5%;height:680px;
 }
