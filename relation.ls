@@ -34,15 +34,20 @@ clear = ->
       .call custom-drag
 
 tmp2d3 = ->
+  position = {}
+  for i til it.nodes.length
+    position[it.nodes[i].id] = i
+  
   nodes: [{
-    id:     it.nodes[i].id
-    name:   it.nodes[i].name
-    group:  i
+    id:       position[it.nodes[i].id]
+    gid:      it.nodes[i].id
+    name:     it.nodes[i].name
+    group:    i
   } for i til it.nodes.length] 
   links: [{
-    source: it.links[i].src
-    target: it.links[i].des
-    name:   it.links[i].name
+    source:   position[it.links[i].src]
+    target:   position[it.links[i].des]
+    name:     it.links[i].name
     bidirect: it.links[i].bidirect
     value:  1
   } for i til it.links.length]
@@ -131,7 +136,7 @@ generate = (error, graph) ->
       .attr \height 100
 
   imgs = defs.append \image
-      .attr \xlink:href -> \img/head/h +it.id + \.png
+      .attr \xlink:href -> \img/head/h +it.gid + \.png
       .attr \x 0
       .attr \y 0
       .attr \width 60
@@ -235,10 +240,9 @@ generate = (error, graph) ->
           (it.source.y + it.target.y)/2
         else 
           (2*it.source.y + it.target.y)/3
-#(2*it.source.y + it.target.y)/3
 
 
-d3.json \/ppllink/names (error,graph) ->
+d3.json \/names (error,graph) ->
   names = []
   names = [graph[x].name for x til graph.length]
   d3.select \select#name-chooser .selectAll \option .data names .enter! .append \option
@@ -250,8 +254,8 @@ d3.json \/ppllink/names (error,graph) ->
     width: \200px
   $ \select#name-chooser .change ->
     clear!
-    d3.json "/ppllink/relation.json" generate
-    #d3.json "/query/#{$ \select#name-chooser .val!}/2" generate
+    #d3.json "/ppllink/relation.json" generate
+    d3.json "/query/#{$ \select#name-chooser .val!}/2" generate
 
 $.fn.disableSelect = ->
   this.attr \unselectable \on
