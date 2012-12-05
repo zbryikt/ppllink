@@ -188,6 +188,8 @@ generate = (error, graph) ->
         if playstate then force.start!
       #.on \mouseout -> it <<< hover: 0, fixed: false; force.start!
       .on \click -> 
+        $ d3.event.target .popover title: "test"
+        $ d3.event.target .popover \show
         if it.fixed
           $ d3.event.target .attr \stroke \#999
           it.fixed = false
@@ -241,8 +243,9 @@ generate = (error, graph) ->
         else 
           (2*it.source.y + it.target.y)/3
 
+ui-test = true
 
-d3.json \/names (error,graph) ->
+d3.json "/#{if ui-test then "ppllink/" else ""}names" (error,graph) ->
   names = []
   names = [graph[x].name for x til graph.length]
   d3.select \select#name-chooser .selectAll \option .data names .enter! .append \option
@@ -254,8 +257,8 @@ d3.json \/names (error,graph) ->
     width: \200px
   $ \select#name-chooser .change ->
     clear!
-    #d3.json "/ppllink/relation.json" generate
-    d3.json "/query/#{$ \select#name-chooser .val!}/2" generate
+    if ui-test then d3.json "/ppllink/relation.json" generate
+    else d3.json "/query/#{$ \select#name-chooser .val!}/2" generate
 
 $.fn.disableSelect = ->
   this.attr \unselectable \on
@@ -264,3 +267,4 @@ $.fn.disableSelect = ->
 
 $ document .ready ->
   $ document .disableSelect!
+  $ \body .tooltip selector: '[rel=tooltip]'
