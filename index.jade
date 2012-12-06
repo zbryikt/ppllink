@@ -45,19 +45,27 @@ html(lang="en")
                   li: a(tabindex="-1",href="#",onclick="toggleDepth(7)") 20
                   li: a(tabindex="-1",href="#",onclick="toggleDepth(8)") &#x221E;
               li: div(style="margin-top:7px",rel="tooltip",title="選擇中心人物")
-                  select#name-chooser
+                  select#name-chooser: option
               li#toggle-generate: a.toggles(herf="#",onclick="",rel="tooltip",title="產生",onclick="toggleGenerate()"): i.icon-chevron-right
-              li#toggle-edit: a.toggles(herf="#",onclick="",rel="tooltip",title="進階選項"): i.icon-edit
+              li.dropdown
+                a.dropdown-toggle.toggles(data-toggle="dropdown",href="#",rel="tooltip",title="選項")
+                  i.icon-list
+                  span.caret
+                ul#graph-option.dropdown-menu
+                  li#toggle-random: a(tabindex="-1",href="#",onclick="toggleRandomizer()") 隨機選擇人物
+                  li.disabled: a(tabindex="-1",href="#",onclick="") 新產生的圖表直接加入現在的圖表
+                  li.disabled: a(tabindex="-1",href="#",onclick="") 使用進階條件
+                      i.pull-right.icon-edit
               li.divider-vertical
               li.dropdown
                 a.dropdown-toggle.toggles(data-toggle="dropdown",href="#",rel="tooltip",title="調整引力")
                   i.icon-magnet
                   span.caret
                 ul#toggle-gravity.dropdown-menu
-                  li.active: a(tabindex="-1",href="#",onclick="toggleGravity(1)") Low
-                  li: a(tabindex="-1",href="#",onclick="toggleGravity(2)") Medium
-                  li: a(tabindex="-1",href="#",onclick="toggleGravity(3)") High
-                  li: a(tabindex="-1",href="#",onclick="toggleGravity(4)") Tight
+                  li.active: a(tabindex="-1",href="#",onclick="toggleGravity(1)") 鬆散
+                  li: a(tabindex="-1",href="#",onclick="toggleGravity(2)") 普通
+                  li: a(tabindex="-1",href="#",onclick="toggleGravity(3)") 緊繃
+                  li: a(tabindex="-1",href="#",onclick="toggleGravity(4)") 一團
               li.divider-vertical
               li#toggle-play: a.toggles(herf="#",onclick="togglePlay()",rel="tooltip",title="暫停"): i.icon-pause
               li.divider-vertical

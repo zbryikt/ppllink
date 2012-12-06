@@ -1,6 +1,6 @@
 [width,height] = [$ \#content .width!, $ \#content .height!]
 
-ui-test = true
+ui-test = false
 
 charge = (d) -> -1000 - ((d[\hover] || 0) && 8000)
 color  = d3.scale.category20!
@@ -256,11 +256,25 @@ generate = (error, graph) ->
 
 @toggle-generate = ->
   $ \#loading .fadeIn 100
+  if randomizer then toggle-randomizer!
   clear!
   <- setTimeout _, 400
   if ui-test then d3.json "/ppllink/relation.json?timestamp=#{new Date! .getTime!}" generate
   else d3.json "/query/#{$ \select#name-chooser .val!}/2" generate
 
+randomizer = null
+@toggle-randomizer = ->
+  if !randomizer
+    $ \#toggle-random .addClass \active
+    randomizer := do
+      <- setInterval _, 100
+      value = 2+parseInt(Math.random! * ($ '\select#name-chooser option' .length-1))
+      $ \select#name-chooser .val($ "select\#name-chooser option:nth-child(#{value})}" .val!) .trigger \change
+  else
+    $ \#toggle-random .removeClass \active
+    clearInterval randomizer
+    randomizer := null
+  
 #d3.json "/#{if ui-test then "ppllink/" else ""}names" (error,graph) ->
 init = (error,graph) ->
   names = []
@@ -281,12 +295,12 @@ $ document .ready ->
   $ document .disableSelect!
   $ \body .tooltip selector: '[rel=tooltip]'
   $ \select#name-chooser .select2 do
-    placeholder: "select a person"
+    placeholder: "選擇主角"
     allowClear: true
     width: \110px
-  $ \select#source-chooser .select2 width: \110px
-  $ \select#link-chooser .select2 width: \60px
-  $ \select#target-chooser .select2 width: \110px
+  $ \select#source-chooser .select2 width: \110px ..select2 \disable
+  $ \select#link-chooser .select2 width: \60px ..select2 \disable
+  $ \select#target-chooser .select2 width: \110px ..select2 \disable
   height := ($ \body .height!) - ($ \#content .position! .top) - 30
   $ \#content .height height
   $ window .resize ->

@@ -1,7 +1,7 @@
 (function(){
-  var ref$, width, height, uiTest, charge, color, force, svg, gc1, gc2, customDrag, clear, tmp2d3, playstate, depthvalue, depthmap, lockstate, nodes, gravitystate, generate, init;
+  var ref$, width, height, uiTest, charge, color, force, svg, gc1, gc2, customDrag, clear, tmp2d3, playstate, depthvalue, depthmap, lockstate, nodes, gravitystate, generate, randomizer, init;
   ref$ = [$('#content').width(), $('#content').height()], width = ref$[0], height = ref$[1];
-  uiTest = true;
+  uiTest = false;
   charge = function(d){
     return -1000 - ((d['hover'] || 0) && 8000);
   };
@@ -240,6 +240,9 @@
   };
   this.toggleGenerate = function(){
     $('#loading').fadeIn(100);
+    if (randomizer) {
+      toggleRandomizer();
+    }
     clear();
     return setTimeout(function(){
       if (uiTest) {
@@ -248,6 +251,21 @@
         return d3.json("/query/" + $('select#name-chooser').val() + "/2", generate);
       }
     }, 400);
+  };
+  randomizer = null;
+  this.toggleRandomizer = function(){
+    if (!randomizer) {
+      $('#toggle-random').addClass('active');
+      return randomizer = setInterval(function(){
+        var value;
+        value = 2 + parseInt(Math.random() * ($('select#name-chooser option').length - 1));
+        return $('select#name-chooser').val($("select#name-chooser option:nth-child(" + value + ")}").val()).trigger('change');
+      }, 100);
+    } else {
+      $('#toggle-random').removeClass('active');
+      clearInterval(randomizer);
+      return randomizer = null;
+    }
   };
   init = function(error, graph){
     var names, res$, i$, to$, x;
@@ -268,24 +286,28 @@
     return this.attr('unselectable', 'on').css('user-select', 'none').on('selectstart', false);
   };
   $(document).ready(function(){
+    var x$;
     $(document).disableSelect();
     $('body').tooltip({
       selector: '[rel=tooltip]'
     });
     $('select#name-chooser').select2({
-      placeholder: "select a person",
+      placeholder: "選擇主角",
       allowClear: true,
       width: '110px'
     });
-    $('select#source-chooser').select2({
+    x$ = $('select#source-chooser').select2({
       width: '110px'
     });
-    $('select#link-chooser').select2({
+    x$.select2('disable');
+    x$ = $('select#link-chooser').select2({
       width: '60px'
     });
-    $('select#target-chooser').select2({
+    x$.select2('disable');
+    x$ = $('select#target-chooser').select2({
       width: '110px'
     });
+    x$.select2('disable');
     height = $('body').height() - $('#content').position().top - 30;
     $('#content').height(height);
     $(window).resize(function(){
