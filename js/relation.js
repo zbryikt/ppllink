@@ -1,6 +1,7 @@
 (function(){
-  var ref$, width, height, charge, color, force, svg, gc1, gc2, customDrag, clear, tmp2d3, playstate, lockstate, nodes, gravitystate, generate;
-  ref$ = [$('#content').width(), 680], width = ref$[0], height = ref$[1];
+  var ref$, width, height, uiTest, charge, color, force, svg, gc1, gc2, customDrag, clear, tmp2d3, playstate, depthvalue, depthmap, lockstate, nodes, gravitystate, generate, init;
+  ref$ = [$('#content').width(), $('#content').height()], width = ref$[0], height = ref$[1];
+  uiTest = true;
   charge = function(d){
     return -1000 - ((d['hover'] || 0) && 8000);
   };
@@ -13,7 +14,7 @@
   clear = function(){
     $('svg').remove();
     force = d3.layout.force().charge(charge).linkDistance(100).gravity(0.1).linkStrength(0.1).size([width, height]);
-    svg = d3.select('#content').append('svg').attr('width', width).attr('height', height);
+    svg = d3.select('#content').append('svg').attr('width', "100%").attr('height', "100%");
     return force.customDrag = function(){
       if (!customDrag) {
         customDrag = d3.behavior.drag().origin(function(it){
@@ -88,6 +89,14 @@
       force.stop();
       return $('#toggle-play').addClass('active');
     }
+  };
+  depthvalue = 1;
+  depthmap = [0, 1, 2, 3, 4, 6, 12, 20, '&#x221E'];
+  this.toggleDepth = function(v){
+    $("#toggle-depth li:nth-child(" + depthvalue + ")").removeClass('active');
+    depthvalue = v;
+    $("#toggle-depth li:nth-child(" + depthvalue + ")").addClass('active');
+    return $('#depth-note').html(depthmap[depthvalue]);
   };
   lockstate = 0;
   nodes = null;
@@ -228,7 +237,7 @@
       });
     });
   };
-  d3.json('/names', function(error, graph){
+  init = function(error, graph){
     var names, res$, i$, to$, x;
     names = [];
     res$ = [];
@@ -242,20 +251,55 @@
     }).text(function(it){
       return it;
     });
-    $('select#name-chooser').select2({
-      placeholder: "select a person",
-      allowClear: true,
-      width: '200px'
-    });
     return $('select#name-chooser').change(function(){
       clear();
-      return d3.json("/query/" + $('select#name-chooser').val() + "/2", generate);
+      if (uiTest) {
+        return d3.json("/ppllink/relation.json?timestamp=" + new Date().getTime(), generate);
+      } else {
+        return d3.json("/query/" + $('select#name-chooser').val() + "/2", generate);
+      }
     });
-  });
+  };
   $.fn.disableSelect = function(){
     return this.attr('unselectable', 'on').css('user-select', 'none').on('selectstart', false);
   };
   $(document).ready(function(){
-    return $(document).disableSelect();
+    $(document).disableSelect();
+    $('body').tooltip({
+      selector: '[rel=tooltip]'
+    });
+    $('select#name-chooser').select2({
+      placeholder: "select a person",
+      allowClear: true,
+      width: '110px'
+    });
+    $('select#source-chooser').select2({
+      width: '110px'
+    });
+    $('select#link-chooser').select2({
+      width: '60px'
+    });
+    $('select#target-chooser').select2({
+      width: '110px'
+    });
+    height = $('body').height() - $('#content').position().top - 30;
+    $('#content').height(height);
+    $(window).resize(function(){
+      var x$;
+      height = $('body').height() - $('#content').position().top - 30;
+      $('#content').height(height);
+      if (gc2 != null) {
+        gc2.attr('cx', width / 2).attr('cy', height / 2);
+      }
+      if (gc1 != null) {
+        gc1.attr('cx', width / 2).attr('cy', height / 2);
+      }
+      x$ = force != null ? force.size([width, height]) : void 8;
+      if (playstate) {
+        x$.start();
+      }
+      return x$;
+    });
+    return d3.json("/" + (uiTest ? "ppllink/" : "") + "names", init);
   });
 }).call(this);

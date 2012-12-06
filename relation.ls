@@ -1,4 +1,6 @@
-[width,height] = [$ \#content .width!,680]
+[width,height] = [$ \#content .width!, $ \#content .height!]
+
+ui-test = false
 
 charge = (d) -> -1000 - ((d[\hover] || 0) && 8000)
 color  = d3.scale.category20!
@@ -17,8 +19,8 @@ clear = ->
      .linkStrength 0.1
      .size         [width,height]
   svg := d3.select \#content .append \svg
-     .attr \width width
-     .attr \height height
+     .attr \width "100%"
+     .attr \height "100%"
   force.custom-drag = ->
     if !custom-drag
       custom-drag := d3.behavior.drag!.origin(-> it) .on \dragstart  -> it.fixed .|.=2
@@ -37,7 +39,6 @@ tmp2d3 = ->
   position = {}
   for i til it.nodes.length
     position[it.nodes[i].id] = i
-  
   nodes: [{
     id:       position[it.nodes[i].id]
     gid:      it.nodes[i].id
@@ -53,7 +54,7 @@ tmp2d3 = ->
   } for i til it.links.length]
 
 playstate = 1
-@togglePlay = ->
+@toggle-play = ->
   if !force then return
   playstate := 1-playstate
   if playstate 
@@ -62,6 +63,14 @@ playstate = 1
   else
     force.stop!
     $ \#toggle-play .addClass \active
+
+depthvalue = 1
+depthmap = [0 1 2 3 4 6 12 20 \&#x221E; ]
+@toggle-depth = (v) ->
+   $ "\#toggle-depth li:nth-child(#{depthvalue})" .removeClass \active
+   depthvalue := v
+   $ "\#toggle-depth li:nth-child(#{depthvalue})" .addClass \active
+   $ \#depth-note .html depthmap[depthvalue]
 
 lockstate = 0
 nodes = null
@@ -188,8 +197,8 @@ generate = (error, graph) ->
         if playstate then force.start!
       #.on \mouseout -> it <<< hover: 0, fixed: false; force.start!
       .on \click -> 
-        $ d3.event.target .popover title: "test"
-        $ d3.event.target .popover \show
+        # $ d3.event.target .popover title: "test"
+        # $ d4.event.target .popover \show
         if it.fixed
           $ d3.event.target .attr \stroke \#999
           it.fixed = false
@@ -243,28 +252,43 @@ generate = (error, graph) ->
         else 
           (2*it.source.y + it.target.y)/3
 
-ui-test = true
 
-d3.json "/#{if ui-test then "ppllink/" else ""}names" (error,graph) ->
+#d3.json "/#{if ui-test then "ppllink/" else ""}names" (error,graph) ->
+init = (error,graph) ->
   names = []
   names = [graph[x].name for x til graph.length]
   d3.select \select#name-chooser .selectAll \option .data names .enter! .append \option
       .attr \value -> it
       .text -> it
-  $ \select#name-chooser .select2 do
-    placeholder: "select a person"
-    allowClear: true
-    width: \200px
   $ \select#name-chooser .change ->
     clear!
-    if ui-test then d3.json "/ppllink/relation.json" generate
+    if ui-test then d3.json "/ppllink/relation.json?timestamp=#{new Date! .getTime!}" generate
     else d3.json "/query/#{$ \select#name-chooser .val!}/2" generate
 
 $.fn.disableSelect = ->
   this.attr \unselectable \on
       .css \user-select \none
       .on \selectstart false
-
 $ document .ready ->
   $ document .disableSelect!
   $ \body .tooltip selector: '[rel=tooltip]'
+  $ \select#name-chooser .select2 do
+    placeholder: "select a person"
+    allowClear: true
+    width: \110px
+  $ \select#source-chooser .select2 width: \110px
+  $ \select#link-chooser .select2 width: \60px
+  $ \select#target-chooser .select2 width: \110px
+  height := ($ \body .height!) - ($ \#content .position! .top) - 30
+  $ \#content .height height
+  $ window .resize ->
+    height := ($ \body .height!) - ($ \#content .position! .top) - 30
+    $ \#content .height height
+    gc2?.attr \cx width/2
+        .attr \cy height/2
+    gc1?.attr \cx width/2
+        .attr \cy height/2
+    force?.size [width,height] 
+        ..start! if playstate
+    
+  d3.json "/#{if ui-test then "ppllink/" else ""}names" init

@@ -28,14 +28,29 @@ html(lang="en")
             a.btn.btn-navbar(data-toggle="collapse",data-target=".nav-collapse")
               span.icon-bar
             a.brand(href="#",style="padding:7px 0 0 5px")
-              i.icon-th(style="width:28px;height:26px;background:url(img/glyphicons.png) -288px -720px;")
+              i.icon-th(style="width:28px;height:26px;background:url(img/glyphicons.png) -192px -0px;")
             ul.nav
-              li: a: i.icon-user
-              li: div(style="margin-top:7px")
-                  select#name-chooser()
+              li.dropdown
+                a.dropdown-toggle.toggles(data-toggle="dropdown",href="#",rel="tooltip",title="設定圖表大小")
+                  i.icon-resize-vertical
+                  sup#depth-note 1
+                  span.caret
+                ul#toggle-depth.dropdown-menu
+                  li.active: a(tabindex="-1",href="#",onclick="toggleDepth(1)") 1
+                  li: a(tabindex="-1",href="#",onclick="toggleDepth(2)") 2
+                  li: a(tabindex="-1",href="#",onclick="toggleDepth(3)") 3
+                  li: a(tabindex="-1",href="#",onclick="toggleDepth(4)") 4
+                  li: a(tabindex="-1",href="#",onclick="toggleDepth(5)") 6
+                  li: a(tabindex="-1",href="#",onclick="toggleDepth(6)") 12
+                  li: a(tabindex="-1",href="#",onclick="toggleDepth(7)") 20
+                  li: a(tabindex="-1",href="#",onclick="toggleDepth(8)") &#x221E;
+              li: div(style="margin-top:7px",rel="tooltip",title="選擇中心人物")
+                  select#name-chooser
+              li#toggle-generate: a.toggles(herf="#",onclick="",rel="tooltip",title="產生"): i.icon-chevron-right
+              li#toggle-edit: a.toggles(herf="#",onclick="",rel="tooltip",title="進階選項"): i.icon-edit
               li.divider-vertical
               li.dropdown
-                a.dropdown-toggle(data-toggle="dropdown",href="#")
+                a.dropdown-toggle.toggles(data-toggle="dropdown",href="#",rel="tooltip",title="調整引力")
                   i.icon-magnet
                   span.caret
                 ul#toggle-gravity.dropdown-menu
@@ -43,7 +58,27 @@ html(lang="en")
                   li: a(tabindex="-1",href="#",onclick="toggleGravity(2)") Medium
                   li: a(tabindex="-1",href="#",onclick="toggleGravity(3)") High
                   li: a(tabindex="-1",href="#",onclick="toggleGravity(4)") Tight
-              li#toggle-play: a(herf="#",onclick="togglePlay()"): i.icon-pause
-              li#toggle-lock: a(href="#",onclick="toggleLock()"): i.icon-certificate
+              li.divider-vertical
+              li#toggle-play: a.toggles(herf="#",onclick="togglePlay()",rel="tooltip",title="暫停"): i.icon-pause
+              li.divider-vertical
+              li#toggle-lock: a.toggles(href="#",onclick="toggleLock()",rel="tooltip",title="鎖定"): i.icon-certificate
+              li.divider-vertical
+              li.divider-vertical
+              li: a(href="#",style="padding:5px 6px 0 0")
+                i.icon-th(style="width:28px;height:26px;background:url(img/glyphicons.png) -288px 0px;")
+              li: div(style="margin:7px 5px 0 0",rel="tooltip",title="事主")
+                  select#source-chooser
+              li: div(style="margin:7px 5px 0 0",rel="tooltip",title="關係")
+                  select#link-chooser
+              li: div(style="margin:7px 5px 0 0",rel="tooltip",title="對象")
+                  select#target-chooser
+              li#toggle-add: a.toggles(herf="#",onclick="togglePlay()",rel="tooltip",title="新增人物關係"): i.icon-chevron-right
+              li.dropdown
+                a.dropdown-toggle.toggles(data-toggle="dropdown",href="#",rel="tooltip",title="選項")
+                  i.icon-list
+                  span.caret
+                ul.dropdown-menu
+                  li: a(tabindex="-1",href="#",onclick="") 在圖中顯示新加入的關聯
+                  li: a(tabindex="-1",href="#",onclick="") 開啟新增人物的編輯器
     #content
     script(type="text/javascript",src="js/relation.js")
