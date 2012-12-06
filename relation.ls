@@ -312,5 +312,5 @@ $ document .ready ->
         .attr \cy height/2
     force?.size [width,height] 
         ..start! if playstate
-    
-  d3.json "/#{if ui-test then "ppllink/" else ""}names" init
+  if ui-test then d3.json "/ppllink/names.json" init
+  else d3.json "/names" init
