@@ -26,7 +26,23 @@ html,body {
   font-size: 10px
 }
 
+a.toggles {
+  cursor: pointer;
+}
+
 .toggles {
   padding-left: 8px!important;
   padding-right: 6px!important;
+}
+
+#loading {
+  position: absolute;
+  z-index: 999;
+  top: 50%;
+  left: 50%;
+  width: 24px;
+  height: 24px;
+  margin: -12px 0 0 -12px;
+  background: url(../img/loading.gif) no-repeat;
+  display: none;
 }
