@@ -46,7 +46,7 @@ html(lang="en")
                   li: a(tabindex="-1",href="#",onclick="toggleDepth(8)") &#x221E;
               li: div(style="margin-top:7px",rel="tooltip",title="選擇中心人物")
                   select#name-chooser
-              li#toggle-generate: a.toggles(herf="#",onclick="",rel="tooltip",title="產生"): i.icon-chevron-right
+              li#toggle-generate: a.toggles(herf="#",onclick="",rel="tooltip",title="產生",onclick="toggleGenerate()"): i.icon-chevron-right
               li#toggle-edit: a.toggles(herf="#",onclick="",rel="tooltip",title="進階選項"): i.icon-edit
               li.divider-vertical
               li.dropdown
@@ -81,4 +81,5 @@ html(lang="en")
                   li: a(tabindex="-1",href="#",onclick="") 在圖中顯示新加入的關聯
                   li: a(tabindex="-1",href="#",onclick="") 開啟新增人物的編輯器
     #content
+    #loading
     script(type="text/javascript",src="js/relation.js")

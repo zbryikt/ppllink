@@ -209,7 +209,7 @@
     relations = link.append('text').attr('width', 2000).attr('x', 300).attr('y', 100).attr('text-anchor', 'middle').attr('font-size', 11).text(function(it){
       return it.name;
     });
-    return force.on('tick', function(){
+    force.on('tick', function(){
       lines.attr('x1', function(it){
         return it.source.x;
       }).attr('y1', function(it){
@@ -236,6 +236,18 @@
         }
       });
     });
+    return $('#loading').fadeOut(400);
+  };
+  this.toggleGenerate = function(){
+    $('#loading').fadeIn(100);
+    clear();
+    return setTimeout(function(){
+      if (uiTest) {
+        return d3.json("/ppllink/relation.json?timestamp=" + new Date().getTime(), generate);
+      } else {
+        return d3.json("/query/" + $('select#name-chooser').val() + "/2", generate);
+      }
+    }, 400);
   };
   init = function(error, graph){
     var names, res$, i$, to$, x;
@@ -246,18 +258,10 @@
       res$.push(graph[x].name);
     }
     names = res$;
-    d3.select('select#name-chooser').selectAll('option').data(names).enter().append('option').attr('value', function(it){
+    return d3.select('select#name-chooser').selectAll('option').data(names).enter().append('option').attr('value', function(it){
       return it;
     }).text(function(it){
       return it;
-    });
-    return $('select#name-chooser').change(function(){
-      clear();
-      if (uiTest) {
-        return d3.json("/ppllink/relation.json?timestamp=" + new Date().getTime(), generate);
-      } else {
-        return d3.json("/query/" + $('select#name-chooser').val() + "/2", generate);
-      }
     });
   };
   $.fn.disableSelect = function(){

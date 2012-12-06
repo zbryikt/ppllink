@@ -1,6 +1,6 @@
 [width,height] = [$ \#content .width!, $ \#content .height!]
 
-ui-test = false
+ui-test = true
 
 charge = (d) -> -1000 - ((d[\hover] || 0) && 8000)
 color  = d3.scale.category20!
@@ -252,6 +252,14 @@ generate = (error, graph) ->
         else 
           (2*it.source.y + it.target.y)/3
 
+  $ \#loading .fadeOut 400
+
+@toggle-generate = ->
+  $ \#loading .fadeIn 100
+  clear!
+  <- setTimeout _, 400
+  if ui-test then d3.json "/ppllink/relation.json?timestamp=#{new Date! .getTime!}" generate
+  else d3.json "/query/#{$ \select#name-chooser .val!}/2" generate
 
 #d3.json "/#{if ui-test then "ppllink/" else ""}names" (error,graph) ->
 init = (error,graph) ->
@@ -260,10 +268,10 @@ init = (error,graph) ->
   d3.select \select#name-chooser .selectAll \option .data names .enter! .append \option
       .attr \value -> it
       .text -> it
-  $ \select#name-chooser .change ->
-    clear!
-    if ui-test then d3.json "/ppllink/relation.json?timestamp=#{new Date! .getTime!}" generate
-    else d3.json "/query/#{$ \select#name-chooser .val!}/2" generate
+  #$ \select#name-chooser .change ->
+  #  clear!
+  #  if ui-test then d3.json "/ppllink/relation.json?timestamp=#{new Date! .getTime!}" generate
+  #  else d3.json "/query/#{$ \select#name-chooser .val!}/2" generate
 
 $.fn.disableSelect = ->
   this.attr \unselectable \on
