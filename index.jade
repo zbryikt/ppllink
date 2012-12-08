@@ -24,13 +24,14 @@ html(lang="en")
             li.divider-vertical
             li: a(href="#") 產生圖表
             li: a(href="#") 人物統計
+            li: a(href="#") 關於
       div.navbar(style="margin-top:60px")
         div.navbar-inner
           .container
             a.btn.btn-navbar(data-toggle="collapse",data-target=".nav-collapse")
               span.icon-bar
             a.brand(href="#",style="padding:7px 0 0 5px")
-              i.icon-th(style="width:28px;height:26px;background:url(img/glyphicons.png) -192px -0px;")
+              i.icon-large-girl(style="width:28px;height:26px;",rel="tooltip",title="圖表設定 &#xbb;")
             ul.nav
               li.dropdown
                 a.dropdown-toggle.toggles(data-toggle="dropdown",href="#",rel="tooltip",title="設定圖表大小")
@@ -77,7 +78,7 @@ html(lang="en")
               li.divider-vertical
               li.divider-vertical
               li: a(href="#",style="padding:5px 6px 0 0")
-                i.icon-th(style="width:28px;height:26px;background:url(img/glyphicons.png) -288px 0px;")
+                i.icon-large-adduser(style="width:28px;height:26px",rel="tooltip",title="快速編輯 &#xbb;")
               li: div(style="margin:7px 5px 0 0",rel="tooltip",title="事主")
                   select#source-chooser
               li: div(style="margin:7px 5px 0 0",rel="tooltip",title="關係")
@@ -91,7 +92,7 @@ html(lang="en")
                   span.caret
                 ul.dropdown-menu
                   li: a(tabindex="-1",href="#",onclick="") 在圖中顯示新加入的關聯
-                  li: a(tabindex="-1",href="#",onclick="") 開啟新增人物的編輯器
+                  li: a(tabindex="-1",href="#",onclick="") 複雜的圖表編輯器
     #content
     #loading
     script(type="text/javascript",src="js/relation.js")

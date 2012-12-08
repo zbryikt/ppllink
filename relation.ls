@@ -97,6 +97,7 @@ gravitystate = 1
     gc2.transition! .delay 100 .duration 750
       .attr \fill \#bec
       .attr \r height
+    d3.select \#content .transition! .duration 750 .style \background \#dfe
     force.gravity 0.1 .start!
   |2 => 
     gc1.transition! .duration 750
@@ -104,6 +105,7 @@ gravitystate = 1
     gc2.transition! .delay 100 .duration 750
       .attr \fill \#cdb
       .attr \r 4*height/5
+    d3.select \#content .transition! .duration 750 .style \background \#efd
     force.gravity 0.2 .start!
   |3 => 
     gc1.transition! .duration 750
@@ -111,6 +113,7 @@ gravitystate = 1
     gc2.transition! .delay 100 .duration 750
       .attr \fill \#dca
       .attr \r 3*height/5
+    d3.select \#content .transition! .duration 750 .style \background \#fed
     force.gravity 0.4 .start!
   |4 =>
     gc1.transition! .duration 750
@@ -118,6 +121,7 @@ gravitystate = 1
     gc2.transition! .delay 100 .duration 750
       .attr \fill \#eaa
       .attr \r 2*height/5
+    d3.select \#content .transition! .duration 750 .style \background \#fdd
     force.gravity 1.0 .start!
   | _ => force.gravity 1.5 .start!
 
@@ -127,16 +131,21 @@ generate = (error, graph) ->
        .links graph.links .start!
 
   gc2 := svg.append \circle
-      .attr \cx width/2
+      .attr \cx width/2 
       .attr \cy height/2
       .attr \r  height
       .attr \fill \#bec
+      .style \opacity \0
 
   gc1 := svg.append \circle
-      .attr \cx width/2
+      .attr \cx width/2 
       .attr \cy height/2
       .attr \r  3*height/4
       .attr \fill \#fff
+      .style \opacity \0
+
+  [x.transition! .duration 750 .style \opacity 1 for x in [gc1,gc2]]
+  d3.select \#content .transition! .duration 750 .style \background \#dfe
 
   defs = svg.selectAll \defs .data graph.nodes .enter! .append \pattern
       .attr \id -> \defs_h + it.id

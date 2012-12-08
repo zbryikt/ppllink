@@ -47,3 +47,13 @@ a.toggles {
   background: url(../img/loading.gif) no-repeat;
   display: none;
 }
+
+.icon-large-adduser, .icon-large-girl {
+  display: inline-block;
+  width: 48px;
+  height: 48px;
+  background:url(../img/glyphicons.png) no-repeat;
+}
+
+.icon-large-adduser { background-position:-288px 0px; }
+.icon-large-girl    { background-position:-192px 0px; }

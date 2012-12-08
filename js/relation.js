@@ -1,7 +1,7 @@
 (function(){
   var ref$, width, height, uiTest, charge, color, force, svg, gc1, gc2, customDrag, clear, tmp2d3, playstate, depthvalue, depthmap, lockstate, nodes, gravitystate, generate, randomizer, init, join$ = [].join;
   ref$ = [$('#content').width(), $('#content').height()], width = ref$[0], height = ref$[1];
-  uiTest = false;
+  uiTest = true;
   charge = function(d){
     return -1000 - ((d['hover'] || 0) && 8000);
   };
@@ -127,29 +127,38 @@
     case 1:
       gc1.transition().duration(750).attr('r', 3 * height / 4);
       gc2.transition().delay(100).duration(750).attr('fill', '#bec').attr('r', height);
+      d3.select('#content').transition().duration(750).style('background', '#dfe');
       return force.gravity(0.1).start();
     case 2:
       gc1.transition().duration(750).attr('r', 3 * height / 5);
       gc2.transition().delay(100).duration(750).attr('fill', '#cdb').attr('r', 4 * height / 5);
+      d3.select('#content').transition().duration(750).style('background', '#efd');
       return force.gravity(0.2).start();
     case 3:
       gc1.transition().duration(750).attr('r', 2 * height / 5);
       gc2.transition().delay(100).duration(750).attr('fill', '#dca').attr('r', 3 * height / 5);
+      d3.select('#content').transition().duration(750).style('background', '#fed');
       return force.gravity(0.4).start();
     case 4:
       gc1.transition().duration(750).attr('r', 3 * height / 10);
       gc2.transition().delay(100).duration(750).attr('fill', '#eaa').attr('r', 2 * height / 5);
+      d3.select('#content').transition().duration(750).style('background', '#fdd');
       return force.gravity(1.0).start();
     default:
       return force.gravity(1.5).start();
     }
   };
   generate = function(error, graph){
-    var defs, imgs, link, oldnode, circles, lines, names, relations;
+    var i$, ref$, len$, x, defs, imgs, link, oldnode, circles, lines, names, relations;
     graph = tmp2d3(graph);
     force.nodes(graph.nodes).links(graph.links).start();
-    gc2 = svg.append('circle').attr('cx', width / 2).attr('cy', height / 2).attr('r', height).attr('fill', '#bec');
-    gc1 = svg.append('circle').attr('cx', width / 2).attr('cy', height / 2).attr('r', 3 * height / 4).attr('fill', '#fff');
+    gc2 = svg.append('circle').attr('cx', width / 2).attr('cy', height / 2).attr('r', height).attr('fill', '#bec').style('opacity', '0');
+    gc1 = svg.append('circle').attr('cx', width / 2).attr('cy', height / 2).attr('r', 3 * height / 4).attr('fill', '#fff').style('opacity', '0');
+    for (i$ = 0, len$ = (ref$ = [gc1, gc2]).length; i$ < len$; ++i$) {
+      x = ref$[i$];
+      x.transition().duration(750).style('opacity', 1);
+    }
+    d3.select('#content').transition().duration(750).style('background', '#dfe');
     defs = svg.selectAll('defs').data(graph.nodes).enter().append('pattern').attr('id', function(it){
       return 'defs_h' + it.id;
     }).attr('patternUnits', 'userSpaceOnUse').attr('width', 100).attr('height', 100);
