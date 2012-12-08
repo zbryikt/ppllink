@@ -297,7 +297,7 @@
     return this.attr('unselectable', 'on').css('user-select', 'none').on('selectstart', false);
   };
   $(document).ready(function(){
-    var x$;
+    var formatNomatch, formatLinkSelect, formatLinkResult, x$;
     $(document).disableSelect();
     $('body').tooltip({
       selector: '[rel=tooltip]'
@@ -307,16 +307,52 @@
       allowClear: true,
       width: '110px'
     });
-    x$ = $('select#source-chooser').select2({
-      width: '110px'
+    formatNomatch = function(){
+      return "將新增名稱";
+    };
+    $('select#source-chooser').select2({
+      width: '100px',
+      placeholder: '設定事主',
+      formatNoMatches: formatNomatch,
+      createSearchChioce: function(it){
+        return it;
+      },
+      change: function(){
+        return $('#blah').text('hihi');
+      }
     });
-    x$.select2('disable');
-    x$ = $('select#link-chooser').select2({
-      width: '60px'
+    formatLinkSelect = function(it){
+      var bk;
+      if (!it.id) {
+        return it.text;
+      }
+      bk = (function(){
+        var ref$;
+        switch ((ref$ = $(it.element)) != null && ref$.data('type')) {
+        case 1:
+          return '#9c7';
+        case -1:
+          return '#c97';
+        default:
+          return '#bbb';
+        }
+      }());
+      return ("<i class='link-attr' style='background:" + bk + "'></i> ") + it.text;
+    };
+    formatLinkResult = function(it){
+      return it.text;
+    };
+    $('select#link-chooser').select2({
+      placeholder: '設定關係',
+      allowClear: true,
+      width: '120px',
+      formatSelection: formatLinkSelect,
+      formatResult: formatLinkSelect,
+      formatNoMatches: formatNomatch
     });
-    x$.select2('disable');
     x$ = $('select#target-chooser').select2({
-      width: '110px'
+      width: '110px',
+      placeholder: '設定目標'
     });
     x$.select2('disable');
     height = $('body').height() - $('#content').position().top - 30;

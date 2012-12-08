@@ -1,6 +1,6 @@
 [width,height] = [$ \#content .width!, $ \#content .height!]
 
-ui-test = false
+ui-test = true
 
 charge = (d) -> -1000 - ((d[\hover] || 0) && 8000)
 color  = d3.scale.category20!
@@ -315,9 +315,30 @@ $ document .ready ->
     placeholder: "選擇主角"
     allowClear: true
     width: \110px
-  $ \select#source-chooser .select2 width: \110px ..select2 \disable
-  $ \select#link-chooser .select2 width: \60px ..select2 \disable
-  $ \select#target-chooser .select2 width: \110px ..select2 \disable
+  format-nomatch = ->
+    "將新增名稱"
+  $ \select#source-chooser .select2 do
+    width: \100px placeholder: \設定事主 formatNoMatches: format-nomatch
+    createSearchChioce: -> it
+    change: ->
+      $ \#blah .text \hihi
+  format-link-select = ->
+    if !it.id then return it.text
+    bk = switch $(it.element)?.data \type
+    | 1  => \#9c7
+    | -1 => \#c97
+    | otherwise => \#bbb
+    "<i class='link-attr' style='background:#{bk}'></i> "+it.text
+  format-link-result = ->
+    it.text
+  $ \select#link-chooser .select2 do
+    placeholder: \設定關係
+    allowClear: true
+    width: \120px 
+    formatSelection: format-link-select
+    formatResult: format-link-select
+    formatNoMatches: format-nomatch
+  $ \select#target-chooser .select2 width: \110px placeholder: \設定目標 ..select2 \disable
   height := ($ \body .height!) - ($ \#content .position! .top) - 30
   $ \#content .height height
   $ window .resize ->

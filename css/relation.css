@@ -57,3 +57,11 @@ a.toggles {
 
 .icon-large-adduser { background-position:-288px 0px; }
 .icon-large-girl    { background-position:-192px 0px; }
+
+.link-attr {
+  display:inline-block;
+  width:13px; height:14px;
+  vertical-align:text-bottom;
+  background:#eee;
+  border:1px solid #999;
+}

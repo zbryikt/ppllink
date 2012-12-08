@@ -80,11 +80,25 @@ html(lang="en")
               li: a(href="#",style="padding:5px 6px 0 0")
                 i.icon-large-adduser(style="width:28px;height:26px",rel="tooltip",title="快速編輯 &#xbb;")
               li: div(style="margin:7px 5px 0 0",rel="tooltip",title="事主")
-                  select#source-chooser
+                  select#source-chooser: option
+                    option 新增人物
               li: div(style="margin:7px 5px 0 0",rel="tooltip",title="關係")
                   select#link-chooser
+                    option
+                    option 新增關係
+                    optgroup(label="請選性向")
+                      option(data-type="0") 無
+                      option(data-type="1") 友好
+                      option(data-type="-1") 敵對
+                    optgroup(label="特殊選項")
+                      option(data-type="2") 雙向
+                    optgroup(label="關係")
+                      option 討厭
+                      option 欣賞
+                      
               li: div(style="margin:7px 5px 0 0",rel="tooltip",title="對象")
-                  select#target-chooser
+                  select#target-chooser: option
+                    option 新增人物
               li#toggle-add: a.toggles(herf="#",onclick="togglePlay()",rel="tooltip",title="新增人物關係"): i.icon-chevron-right
               li.dropdown
                 a.dropdown-toggle.toggles(data-toggle="dropdown",href="#",rel="tooltip",title="選項")
