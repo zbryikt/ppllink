@@ -156,24 +156,24 @@ generate = (error, graph) ->
       .attr \viewBox "-30 -5 10 10"
       .attr \markerWidth 20
       .attr \markerHeight 7
-      .attr \fill \none
+      .attr \fill \#bbb
       .attr \stroke \#999
       .attr \stroke-width 1
       .attr \orient \auto
       .append \path
-      .attr \d "M -30 -3 L -25 0 L -30 3"
+      .attr \d "M -27 -3 L -22 0 L -27 3 L -27 -3"
 
   defs.append \marker
       .attr \id \arrow2
       .attr \viewBox "10 -5 30 10"
       .attr \markerWidth 20
       .attr \markerHeight 7
-      .attr \fill \none
+      .attr \fill \#bbb
       .attr \stroke \#999
       .attr \stroke-width 1
       .attr \orient \auto
       .append \path
-      .attr \d "M 30 -3 L 25 0 L 30 3"
+      .attr \d "M 27 -3 L 22 0 L 27 3 L 27 -3"
   link = svg.selectAll \line.link .data graph.links .enter! .append \g
 
   nodes := svg.selectAll \circle.node .data graph.nodes .enter! .append \g
@@ -213,10 +213,16 @@ generate = (error, graph) ->
       .attr \marker-start -> if it.bidirect then 'url(#arrow2)'
       .style \stroke-width -> 2 #Math.sqrt it.value
   
-  names = nodes.append \text
+  names = nodes.append \g
+  names.append \rect
+      .attr \x -5    .attr \y 56
+      .attr \rx 5     .attr \ry 5
+      .attr \width 70 .attr \height 18
+      .attr \fill \#fff
+      .attr \style \opacity:0.3
+  names.append \text
       .attr \width 200
-      .attr \x 30
-      .attr \y 70
+      .attr \x 30  .attr \y 70
       .attr \text-anchor \middle
       .text -> it.name
       .on \mousemover -> 
@@ -225,12 +231,18 @@ generate = (error, graph) ->
         oldnode := it
         it <<< hover: 1
         if playstate then force.start!
-      #.on \mouseout -> it <<< hover: 0, fixed: false; force.start!
 
-  relations = link.append \text
-      .attr \width 2000
-      .attr \x 300
-      .attr \y 100
+  relations = link.append \g
+      .attr \width 100
+      .attr \x 0 .attr \y 0
+
+  relations.append \rect
+      .attr \x -35    .attr \y -14
+      .attr \rx 5     .attr \ry 5
+      .attr \width 70 .attr \height 18
+      .attr \fill \#fff
+      .attr \style \opacity:0.3
+  relations.append \text
       .attr \text-anchor \middle
       .attr \font-size 11
       .text -> it.name
@@ -241,16 +253,12 @@ generate = (error, graph) ->
       .attr \x2 -> it.target.x
       .attr \y2 -> it.target.y
     nodes.attr \transform -> "translate(#{it.x-30},#{it.y-30})"
-    relations.attr \x -> 
-      if it.bidirect
-        (it.source.x + it.target.x)/2
-      else 
-        (2*it.source.x + it.target.x)/3
-    .attr \y -> 
-        if it.bidirect
-          (it.source.y + it.target.y)/2
-        else 
-          (2*it.source.y + it.target.y)/3
+    relations.attr \transform ->
+      (* '') ["translate("
+      if it.bidirect then (it.source.x + it.target.x)/2 else (2*it.source.x + it.target.x)/3
+      ","
+      if it.bidirect then (it.source.y + it.target.y)/2 else (2*it.source.y + it.target.y)/3
+      ")" ]
 
   $ \#loading .fadeOut 400
 

@@ -10,7 +10,6 @@ html,body {
 
 .link {
   stroke: #999;
-  stroke-opacity: .6;
 }
 
 #name-chooser {
@@ -20,6 +19,8 @@ html,body {
 #content {
   border: 1px solid #ddd;
   width:90%;margin:0 5% 0 5%;
+  background: #eee;
+  box-shadow: 0 2px 13px #ddd;
 }
 
 .depth-note {

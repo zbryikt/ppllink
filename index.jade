@@ -53,9 +53,11 @@ html(lang="en")
                   span.caret
                 ul#graph-option.dropdown-menu
                   li#toggle-random: a(tabindex="-1",href="#",onclick="toggleRandomizer()") 隨機選擇人物
-                  li.disabled: a(tabindex="-1",href="#",onclick="") 新產生的圖表直接加入現在的圖表
+                  li.disabled: a(tabindex="-1",href="#",onclick="") 新圖表與目前圖表合併顯示
                   li.disabled: a(tabindex="-1",href="#",onclick="") 使用進階條件
                       i.pull-right.icon-edit
+                  li.divider
+                  li.disabled: a(tabindex="-1",href="#",onclick="") 清除圖表
               li.divider-vertical
               li.dropdown
                 a.dropdown-toggle.toggles(data-toggle="dropdown",href="#",rel="tooltip",title="調整引力")

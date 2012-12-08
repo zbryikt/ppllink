@@ -1,5 +1,5 @@
 (function(){
-  var ref$, width, height, uiTest, charge, color, force, svg, gc1, gc2, customDrag, clear, tmp2d3, playstate, depthvalue, depthmap, lockstate, nodes, gravitystate, generate, randomizer, init;
+  var ref$, width, height, uiTest, charge, color, force, svg, gc1, gc2, customDrag, clear, tmp2d3, playstate, depthvalue, depthmap, lockstate, nodes, gravitystate, generate, randomizer, init, join$ = [].join;
   ref$ = [$('#content').width(), $('#content').height()], width = ref$[0], height = ref$[1];
   uiTest = false;
   charge = function(d){
@@ -156,8 +156,8 @@
     imgs = defs.append('image').attr('xlink:href', function(it){
       return 'img/head/h' + it.gid + '.png';
     }).attr('x', 0).attr('y', 0).attr('width', 60).attr('height', 60);
-    defs.append('marker').attr('id', 'arrow').attr('viewBox', "-30 -5 10 10").attr('markerWidth', 20).attr('markerHeight', 7).attr('fill', 'none').attr('stroke', '#999').attr('stroke-width', 1).attr('orient', 'auto').append('path').attr('d', "M -30 -3 L -25 0 L -30 3");
-    defs.append('marker').attr('id', 'arrow2').attr('viewBox', "10 -5 30 10").attr('markerWidth', 20).attr('markerHeight', 7).attr('fill', 'none').attr('stroke', '#999').attr('stroke-width', 1).attr('orient', 'auto').append('path').attr('d', "M 30 -3 L 25 0 L 30 3");
+    defs.append('marker').attr('id', 'arrow').attr('viewBox', "-30 -5 10 10").attr('markerWidth', 20).attr('markerHeight', 7).attr('fill', '#bbb').attr('stroke', '#999').attr('stroke-width', 1).attr('orient', 'auto').append('path').attr('d', "M -27 -3 L -22 0 L -27 3 L -27 -3");
+    defs.append('marker').attr('id', 'arrow2').attr('viewBox', "10 -5 30 10").attr('markerWidth', 20).attr('markerHeight', 7).attr('fill', '#bbb').attr('stroke', '#999').attr('stroke-width', 1).attr('orient', 'auto').append('path').attr('d', "M 27 -3 L 22 0 L 27 3 L 27 -3");
     link = svg.selectAll('line.link').data(graph.links).enter().append('g');
     nodes = svg.selectAll('circle.node').data(graph.nodes).enter().append('g').attr('x', 100).attr('y', 100);
     oldnode = null;
@@ -191,7 +191,9 @@
     }).style('stroke-width', function(){
       return 2;
     });
-    names = nodes.append('text').attr('width', 200).attr('x', 30).attr('y', 70).attr('text-anchor', 'middle').text(function(it){
+    names = nodes.append('g');
+    names.append('rect').attr('x', -5).attr('y', 56).attr('rx', 5).attr('ry', 5).attr('width', 70).attr('height', 18).attr('fill', '#fff').attr('style', 'opacity:0.3');
+    names.append('text').attr('width', 200).attr('x', 30).attr('y', 70).attr('text-anchor', 'middle').text(function(it){
       return it.name;
     }).on('mousemover', function(it){
       if (oldnode === it) {
@@ -206,7 +208,9 @@
         return force.start();
       }
     });
-    relations = link.append('text').attr('width', 2000).attr('x', 300).attr('y', 100).attr('text-anchor', 'middle').attr('font-size', 11).text(function(it){
+    relations = link.append('g').attr('width', 100).attr('x', 0).attr('y', 0);
+    relations.append('rect').attr('x', -35).attr('y', -14).attr('rx', 5).attr('ry', 5).attr('width', 70).attr('height', 18).attr('fill', '#fff').attr('style', 'opacity:0.3');
+    relations.append('text').attr('text-anchor', 'middle').attr('font-size', 11).text(function(it){
       return it.name;
     });
     force.on('tick', function(){
@@ -222,18 +226,16 @@
       nodes.attr('transform', function(it){
         return "translate(" + (it.x - 30) + "," + (it.y - 30) + ")";
       });
-      return relations.attr('x', function(it){
-        if (it.bidirect) {
-          return (it.source.x + it.target.x) / 2;
-        } else {
-          return (2 * it.source.x + it.target.x) / 3;
-        }
-      }).attr('y', function(it){
-        if (it.bidirect) {
-          return (it.source.y + it.target.y) / 2;
-        } else {
-          return (2 * it.source.y + it.target.y) / 3;
-        }
+      return relations.attr('transform', function(it){
+        return (function(it){
+          return join$.call(it, '');
+        })([
+          "translate(", it.bidirect
+            ? (it.source.x + it.target.x) / 2
+            : (2 * it.source.x + it.target.x) / 3, ",", it.bidirect
+            ? (it.source.y + it.target.y) / 2
+            : (2 * it.source.y + it.target.y) / 3, ")"
+        ]);
       });
     });
     return $('#loading').fadeOut(400);
@@ -326,6 +328,10 @@
       }
       return x$;
     });
-    return d3.json("/" + (uiTest ? "ppllink/" : "") + "names", init);
+    if (uiTest) {
+      return d3.json("/ppllink/names.json", init);
+    } else {
+      return d3.json("/names", init);
+    }
   });
 }).call(this);
