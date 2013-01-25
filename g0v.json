@@ -1,0 +1,44 @@
+{
+  "nodes": [
+{"id": 0, "name": "hlb"}
+,{"id": 1, "name": "isabel"}
+,{"id": 2, "name": "kcwu"}
+,{"id": 3, "name": "ipa"}
+,{"id": 4, "name": "chhiso"}
+,{"id": 5, "name": "superd"}
+,{"id": 6, "name": "ca"}
+,{"id": 7, "name": "juanna"}
+,{"id": 8, "name": "clkao"}
+,{"id": 9, "name": "gugod"}
+,{"id": 10, "name": "mindos"}
+,{"id": 11, "name": "au"}
+,{"id": 12, "name": "freedom"}
+,{"id": 13, "name": "opop"}
+,{"id": 14, "name": "布丁"}
+,{"id": 15, "name": "公報閱讀器"}
+,{"id": 16, "name": "chhsiao"}
+,{"id": 17, "name": "紀錄片"}
+,{"id": 18, "name": "sleep"}
+,{"id": 19, "name": "tkirby"}
+ ],
+  "links": [
+{"src": 11, "des": 8, "name": "同事", "bidirect": true}
+,{"src": 3, "des": 8, "name": "夫妻", "bidirect": true}
+,{"src": 9, "des": 8, "name": "同學", "bidirect": true}
+,{"src": 10, "des": 19, "name": "同事", "bidirect": true}
+,{"src": 5, "des": 19, "name": "同事", "bidirect": true}
+,{"src": 12, "des": 19, "name": "同事", "bidirect": true}
+,{"src": 1, "des": 12, "name": "夫妻", "bidirect": true}
+,{"src": 16, "des": 19, "name": "同學", "bidirect": true}
+,{"src": 16, "des": 8, "name": "表兄弟", "bidirect": true}
+,{"src": 2, "des": 19, "name": "同學", "bidirect": true}
+,{"src": 4, "des": 16, "name": "同學", "bidirect": true}
+,{"src": 13, "des": 6, "name": "同事", "bidirect": true}
+,{"src": 13, "des": 8, "name": "信仰", "bidirect": false}
+,{"src": 13, "des": 19, "name": "崇拜", "bidirect": false}
+,{"src": 13, "des": 6, "name": "討厭", "bidirect": false}
+,{"src": 18, "des": 14, "name": "吃", "bidirect": false}
+,{"src": 3, "des": 17, "name": "拍攝", "bidirect": false}
+,{"src": 7, "des": 13, "name": "協助", "bidirect": false}
+,{"src": 0, "des": 15, "name": "產生", "bidirect": false}
+]}
