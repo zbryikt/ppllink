@@ -163,7 +163,7 @@
       return 'defs_h' + it.id;
     }).attr('patternUnits', 'userSpaceOnUse').attr('width', 100).attr('height', 100);
     imgs = defs.append('image').attr('xlink:href', function(it){
-      return 'img/head/h' + it.gid + '.png';
+      return 'img/head-g0v/h' + it.gid + '.png';
     }).attr('x', 0).attr('y', 0).attr('width', 60).attr('height', 60);
     defs.append('marker').attr('id', 'arrow').attr('viewBox', "-30 -5 10 10").attr('markerWidth', 20).attr('markerHeight', 7).attr('fill', '#bbb').attr('stroke', '#999').attr('stroke-width', 1).attr('orient', 'auto').append('path').attr('d', "M -27 -3 L -22 0 L -27 3 L -27 -3");
     defs.append('marker').attr('id', 'arrow2').attr('viewBox', "10 -5 30 10").attr('markerWidth', 20).attr('markerHeight', 7).attr('fill', '#bbb').attr('stroke', '#999').attr('stroke-width', 1).attr('orient', 'auto').append('path').attr('d', "M 27 -3 L 22 0 L 27 3 L 27 -3");

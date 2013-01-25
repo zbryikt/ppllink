@@ -154,7 +154,7 @@ generate = (error, graph) ->
       .attr \height 100
 
   imgs = defs.append \image
-      .attr \xlink:href -> \img/head/h +it.gid + \.png
+      .attr \xlink:href -> \img/head-g0v/h +it.gid + \.png
       .attr \x 0
       .attr \y 0
       .attr \width 60
