@@ -54,7 +54,19 @@
     {"id": 51, "name": "蔣偉寧"},
     {"id": 52, "name": "董智森"},
     {"id": 53, "name": "清大"},
-    {"id": 54, "name": "陳沖"}
+    {"id": 54, "name": "陳沖"},
+    {"id": 55, "name": "蔡沛然"},
+    {"id": 56, "name": "吳敦義"},
+    {"id": 57, "name": "吳子廉"},
+    {"id": 58, "name": "連戰"},
+    {"id": 59, "name": "連惠心"},
+    {"id": 60, "name": "錢復"},
+    {"id": 61, "name": "錢國維"},
+    {"id": 62, "name": "蕭萬長"},
+    {"id": 63, "name": "蕭至佑"},
+    {"id": 64, "name": "江丙坤"},
+    {"id": 65, "name": "江俊德"},
+    {"id": 66, "name": "太子黨"}
   ],
   "links": [
     {"src": 0, "des": 4, "name": "敵人", "bidirect": true},
@@ -134,6 +146,23 @@
     {"src": 22, "des": 53, "name": "無話可說"},
     {"src": 53, "des": 51, "name": "道歉"},
     {"src": 54, "des": 51, "name": "部下"},
-    {"src": 1, "des": 54, "name": "部下"}
+    {"src": 1, "des": 54, "name": "部下"},
+    {"src": 1, "des": 55, "name": "女婿"},
+    {"src": 1, "des": 56, "name": "同事", "bidirect": true},
+    {"src": 56, "des": 57, "name": "父子", "bidirect": true},
+    {"src": 58, "des": 28, "name": "父子", "bidirect": true},
+    {"src": 58, "des": 59, "name": "父女", "bidirect": true},
+    {"src": 28, "des": 59, "name": "手足", "bidirect": true},
+    {"src": 60, "des": 61, "name": "父子", "bidirect": true},
+    {"src": 62, "des": 63, "name": "父女", "bidirect": true},
+    {"src": 64, "des": 65, "name": "父子", "bidirect": true},
+    {"src": 28, "des": 66, "name": "參與"},
+    {"src": 55, "des": 66, "name": "參與"},
+    {"src": 57, "des": 66, "name": "參與"},
+    {"src": 59, "des": 66, "name": "參與"},
+    {"src": 61, "des": 66, "name": "參與"},
+    {"src": 63, "des": 66, "name": "參與"},
+    {"src": 65, "des": 66, "name": "參與"},
+    {"src": 1,  "des": 62, "name": "前同事"}
   ]
 }
