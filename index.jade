@@ -9,6 +9,7 @@ html(lang="en")
     link(rel="stylesheet",type="text/css",href="css/bootstrap.min.css")
     link(rel="stylesheet",type="text/css",href="css/select2.css")
     link(rel="stylesheet",type="text/css",href="css/relation.css")
+    script(type="text/javascript",src="https://cdn.firebase.com/v0/firebase.js")
     script(type="text/javascript",src="js/jquery.1.8.2.js")
     script(type="text/javascript",src="js/bootstrap.min.js")
     script(type="text/javascript",src="http://d3js.org/d3.v3.min.js")
@@ -25,42 +26,63 @@ html(lang="en")
             li: a(href="#") 產生圖表
             li: a(href="#") 人物統計
             li: a(href="#") 關於
+      #head-upload-modal.modal.hide.fade(tabindex="-1",role="dialog",aria-labelledby="myModalLabel",aria-hidden="true")
+        .modal-header
+          button.close(type="button",data-dismiss="modal",aria-hidden="true") &times;
+          h3 上傳大頭照
+        #head-upload-modal-body.modal-body
+          div#upload-preview-box
+            img#upload-preview(src="img/head/unknown.png",width="100px",height="100px")
+          div#upload-detail-box
+            input.hidden(type="file",accept="image/*",capture="camera",id="head-upload")
+            div 檔案大小限制為 100KB
+            #head-icon-size 尚未選擇檔案
+        .modal-footer
+          a#head-upload-btn.btn.disabled(href="#",onclick="if(this.disabled) return; headIconUpload();setIcon()") 上傳
+          a.btn(href="#",onclick="setIcon()") 取消
+
       div.navbar(style="margin-top:60px")
         div.navbar-inner
           .container
             a.btn.btn-navbar(data-toggle="collapse",data-target=".nav-collapse")
               span.icon-bar
-            a.brand(href="#",style="padding:7px 0 0 5px")
-              i.icon-large-girl(style="width:28px;height:26px;",rel="tooltip",title="圖表設定 &#xbb;")
+            //
+              a.brand(href="#",style="padding:7px 0 0 5px")
+                i.icon-large-girl(style="width:28px;height:26px;",rel="tooltip",title="設定圖像 &#xbb;",onclick="setIcon();")
             ul.nav
-              li.dropdown
-                a.dropdown-toggle.toggles(data-toggle="dropdown",href="#",rel="tooltip",title="設定圖表大小")
-                  i.icon-resize-vertical
-                  sup#depth-note 1
-                  span.caret
-                ul#toggle-depth.dropdown-menu
-                  li.active: a(tabindex="-1",href="#",onclick="toggleDepth(1)") 1
-                  li: a(tabindex="-1",href="#",onclick="toggleDepth(2)") 2
-                  li: a(tabindex="-1",href="#",onclick="toggleDepth(3)") 3
-                  li: a(tabindex="-1",href="#",onclick="toggleDepth(4)") 4
-                  li: a(tabindex="-1",href="#",onclick="toggleDepth(5)") 6
-                  li: a(tabindex="-1",href="#",onclick="toggleDepth(6)") 12
-                  li: a(tabindex="-1",href="#",onclick="toggleDepth(7)") 20
-                  li: a(tabindex="-1",href="#",onclick="toggleDepth(8)") &#x221E;
-              li: div(style="margin-top:7px",rel="tooltip",title="選擇中心人物")
-                  select#name-chooser: option
-              li#toggle-generate: a.toggles(herf="#",onclick="",rel="tooltip",title="產生",onclick="toggleGenerate()"): i.icon-chevron-right
-              li.dropdown
-                a.dropdown-toggle.toggles(data-toggle="dropdown",href="#",rel="tooltip",title="選項")
-                  i.icon-list
-                  span.caret
-                ul#graph-option.dropdown-menu
-                  li#toggle-random: a(tabindex="-1",href="#",onclick="toggleRandomizer()") 隨機選擇人物
-                  li.disabled: a(tabindex="-1",href="#",onclick="") 新圖表與目前圖表合併顯示
-                  li.disabled: a(tabindex="-1",href="#",onclick="") 使用進階條件
-                      i.pull-right.icon-edit
-                  li.divider
-                  li.disabled: a(tabindex="-1",href="#",onclick="") 清除圖表
+              li: div(style="margin-top:7px",rel="tooltip",title="選擇領域")
+                select#domain-chooser: option
+                  option(value="politics") 政治人物
+                  option(value="g0v",selected) 零時政府
+              //
+                li.dropdown
+                  a.dropdown-toggle.toggles(data-toggle="dropdown",href="#",rel="tooltip",title="設定圖表大小")
+                    i.icon-resize-vertical
+                    sup#depth-note 1
+                    span.caret
+                  ul#toggle-depth.dropdown-menu
+                    li.active: a(tabindex="-1",href="#",onclick="toggleDepth(1)") 1
+                    li: a(tabindex="-1",href="#",onclick="toggleDepth(2)") 2
+                    li: a(tabindex="-1",href="#",onclick="toggleDepth(3)") 3
+                    li: a(tabindex="-1",href="#",onclick="toggleDepth(4)") 4
+                    li: a(tabindex="-1",href="#",onclick="toggleDepth(5)") 6
+                    li: a(tabindex="-1",href="#",onclick="toggleDepth(6)") 12
+                    li: a(tabindex="-1",href="#",onclick="toggleDepth(7)") 20
+                    li: a(tabindex="-1",href="#",onclick="toggleDepth(8)") &#x221E;
+                li: div(style="margin-top:7px",rel="tooltip",title="選擇中心人物")
+                    select#name-chooser: option
+                li#toggle-generate: a.toggles(herf="#",onclick="",rel="tooltip",title="產生",onclick="toggleGenerate()"): i.icon-chevron-right
+                li.dropdown
+                  a.dropdown-toggle.toggles(data-toggle="dropdown",href="#",rel="tooltip",title="選項")
+                    i.icon-list
+                    span.caret
+                  ul#graph-option.dropdown-menu
+                    li#toggle-random: a(tabindex="-1",href="#",onclick="toggleRandomizer()") 隨機選擇人物
+                    li.disabled: a(tabindex="-1",href="#",onclick="") 新圖表與目前圖表合併顯示
+                    li.disabled: a(tabindex="-1",href="#",onclick="") 使用進階條件
+                        i.pull-right.icon-edit
+                    li.divider
+                    li.disabled: a(tabindex="-1",href="#",onclick="") 清除圖表
               li.divider-vertical
               li.dropdown
                 a.dropdown-toggle.toggles(data-toggle="dropdown",href="#",rel="tooltip",title="調整引力")
@@ -76,15 +98,15 @@ html(lang="en")
               li.divider-vertical
               li#toggle-lock: a.toggles(href="#",onclick="toggleLock()",rel="tooltip",title="鎖定"): i.icon-certificate
               li.divider-vertical
-              li.divider-vertical
               li: a(href="#",style="padding:5px 6px 0 0")
-                i.icon-large-adduser(style="width:28px;height:26px",rel="tooltip",title="快速編輯 &#xbb;")
+                i.icon-large-adduser(style="width:28px;height:26px",rel="tooltip",title="更換頭像 &#xbb;",onclick="setIcon('#source-chooser');")
               li: div(style="margin:7px 5px 0 0",rel="tooltip",title="事主")
                   select#source-chooser: option
-                    option 新增人物
               li: div(style="margin:7px 5px 0 0",rel="tooltip",title="關係")
+                  i.icon-arrow-right(style="margin:5px 3px 0 0")
                   select#link-chooser
                     option
+                  //
                     option 新增關係
                     optgroup(label="請選性向")
                       option(data-type="0") 無
@@ -95,18 +117,21 @@ html(lang="en")
                     optgroup(label="關係")
                       option 討厭
                       option 欣賞
+                  i.icon-arrow-right(style="margin:5px 0 0 4px")
                       
               li: div(style="margin:7px 5px 0 0",rel="tooltip",title="對象")
                   select#target-chooser: option
-                    option 新增人物
-              li#toggle-add: a.toggles(herf="#",onclick="togglePlay()",rel="tooltip",title="新增人物關係"): i.icon-chevron-right
-              li.dropdown
-                a.dropdown-toggle.toggles(data-toggle="dropdown",href="#",rel="tooltip",title="選項")
-                  i.icon-list
-                  span.caret
-                ul.dropdown-menu
-                  li: a(tabindex="-1",href="#",onclick="") 在圖中顯示新加入的關聯
-                  li: a(tabindex="-1",href="#",onclick="") 複雜的圖表編輯器
+              li: a(href="#",style="padding:5px 6px 0 0")
+                i.icon-large-girl(style="width:28px;height:26px",rel="tooltip",title="更換頭像 &#xbb;",onclick="setIcon('#target-chooser');")
+              li#toggle-add: a.toggles(herf="#",onclick="toggleAdd()",rel="tooltip",title="新增人物關係"): i.icon-chevron-right
+              //
+                li.dropdown
+                  a.dropdown-toggle.toggles(data-toggle="dropdown",href="#",rel="tooltip",title="選項")
+                    i.icon-list
+                    span.caret
+                  ul.dropdown-menu
+                    li: a(tabindex="-1",href="#",onclick="") 在圖中顯示新加入的關聯
+                    li: a(tabindex="-1",href="#",onclick="") 複雜的圖表編輯器
     #content
     #loading
     script(type="text/javascript",src="js/relation.js")

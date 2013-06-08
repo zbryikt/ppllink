@@ -41,10 +41,15 @@ a.toggles {
   z-index: 999;
   top: 50%;
   left: 50%;
+  /*
   width: 24px;
   height: 24px;
   margin: -12px 0 0 -12px;
-  background: url(../img/loading.gif) no-repeat;
+  */
+  width: 100%;
+  height: 100%;
+  margin: -25% 0 0 -50%;
+  background: url(../img/loading.gif?yx) rgba(0,0,0,0.5) no-repeat center center;
   display: none;
 }
 
@@ -64,4 +69,39 @@ a.toggles {
   vertical-align:text-bottom;
   background:#eee;
   border:1px solid #999;
+}
+
+#head-upload-modal-body {
+  vertical-align: top;
+  font-size: 13px;
+  font-family: tahoma;
+  line-height: 13px;
+  text-align: center;
+  position: relative;
+  clear: both
+  padding: 20px 50px;
+}
+#upload-detail-box {
+  float: left;
+  text-align:  left;
+  height:  100px;
+  padding:  10px 30px;
+  margin-left:30px;
+  border-left: 1px dashed #ddd;
+}
+#upload-detail-box > input {
+  line-height: 13px; font-size: 13px;
+}
+#upload-detail-box > div {
+  margin-bottom: 20px;
+}
+
+#head-icon-size {font-size:20px;line-height:20px;}
+#upload-preview-box {
+  float: left;
+  height: 100px;
+  width: 100px;
+  padding: 10px 10px;
+  margin-left: 20px;
+  box-shadow: 0 0 3px rgba(0,0,0,0.1);
 }
