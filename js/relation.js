@@ -521,8 +521,7 @@
     if (!domain) {
       domain = 'sandbox';
     }
-    $('#domain-chooser').val(domain);
-    console.log(domain);
+    $('select#domain-chooser').val("測試區");
     return initDb(domain);
   });
   headPayload = null;
