@@ -253,16 +253,18 @@ generate = (error, graph) ->
       .attr \fill \#fff
       .attr \style \opacity:0.3
   names.append \text
+      .attr \class \text-name
       .attr \width 200
       .attr \x 30  .attr \y 70
       .attr \text-anchor \middle
-      .text -> it.name
       .on \mousemover -> 
         if oldnode==it then return
         if oldnode then oldnode.hover = 0
         oldnode := it
         it <<< hover: 1
         if playstate then force.start!
+  circle-box.selectAll \text.text-name .data data.nodes
+      .text -> it.name
 
   relations = link.append \g
       .attr \width 100
@@ -275,8 +277,10 @@ generate = (error, graph) ->
       .attr \fill \#fff
       .attr \style \opacity:0.3
   relations.append \text
+      .attr \class \text-relation
       .attr \text-anchor \middle
       .attr \font-size 11
+  line-box.selectAll \text.text-relation .data data.links
       .text -> it.name
 
   nodes := circle-box.selectAll \g.circle-group
