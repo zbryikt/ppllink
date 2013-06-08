@@ -383,6 +383,7 @@ init-db = (domain) ->
     reload-workaround := reload-workaround + 1
     #if reload-workaround > 3 then window.location.reload!
     _d = s.val!
+    if _d == null then _d = nodes: [], links: [], img: {}
     data = window.relation-data
     for k,v of _d.nodes
       if !window.name-hash[v.name] then data.nodes.push v
@@ -456,7 +457,11 @@ $ document .ready ->
     force?.size [width,height] 
         ..start! if playstate
   init null, window.relation-data
-  init-db \g0v
+  domain = window.location.href.split("?")[1]
+  if domain == null then domain = \sandbox
+  $ \#domain-chooser .val domain
+
+  init-db domain
 
   #if ui-test then d3.json "/ppllink/names.json" init
   #else d3.json "/names" init

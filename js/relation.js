@@ -393,6 +393,13 @@
       var _d, data, k, ref$, v;
       reloadWorkaround = reloadWorkaround + 1;
       _d = s.val();
+      if (_d === null) {
+        _d = {
+          nodes: [],
+          links: [],
+          img: {}
+        };
+      }
       data = window.relationData;
       for (k in ref$ = _d.nodes) {
         v = ref$[k];
@@ -426,7 +433,7 @@
     return this.attr('unselectable', 'on').css('user-select', 'none').on('selectstart', false);
   };
   $(document).ready(function(){
-    var formatNomatch, formatLinkSelect, formatLinkResult;
+    var formatNomatch, formatLinkSelect, formatLinkResult, domain;
     $(document).disableSelect();
     $('body').tooltip({
       selector: '[rel=tooltip]'
@@ -510,7 +517,12 @@
       return x$;
     });
     init(null, window.relationData);
-    return initDb('g0v');
+    domain = window.location.href.split("?")[1];
+    if (domain === null) {
+      domain = 'sandbox';
+    }
+    $('#domain-chooser').val(domain);
+    return initDb(domain);
   });
   headPayload = null;
   headName = null;
