@@ -1,5 +1,5 @@
 (function(){
-  var ref$, width, height, uiTest, charge, color, force, svg, gc1, gc2, mpl, circleBox, lineBox, customDrag, clear, tmp2d3, playstate, depthvalue, depthmap, lockstate, nodes, gravitystate, generate, randomizer, updateSelect, init, join$ = [].join;
+  var ref$, width, height, uiTest, charge, color, force, svg, gc1, gc2, mpl, reloadWorkaround, circleBox, lineBox, customDrag, clear, tmp2d3, playstate, depthvalue, depthmap, lockstate, nodes, gravitystate, generate, randomizer, updateSelect, initDb, init, headPayload, headName, headIconSelect, fu, join$ = [].join;
   ref$ = [$('#content').width(), $('#content').height()], width = ref$[0], height = ref$[1];
   uiTest = true;
   charge = function(d){
@@ -11,12 +11,14 @@
   gc1 = null;
   gc2 = null;
   mpl = null;
+  reloadWorkaround = 0;
   circleBox = null;
   lineBox = null;
   customDrag = null;
   this.relationData = {
     nodes: [],
-    links: []
+    links: [],
+    img: {}
   };
   this.nameHash = {};
   this.linkHash = {};
@@ -176,17 +178,28 @@
     var link, oldnode, defs, imgs, lines, circles, names, relations;
     data = tmp2d3(data);
     force.nodes(data.nodes).links(data.links).start();
+    lineBox.selectAll('g.line-group').data(data.links).exit().remove();
     link = lineBox.selectAll('g.line-group').data(data.links).enter().append('g').attr('class', 'line-group');
+    circleBox.selectAll('g.circle-group').data(data.nodes).exit().remove();
     nodes = circleBox.selectAll('g.circle-group').data(data.nodes).enter().append('g').attr('class', 'circle-group').attr('x', 100).attr('y', 100);
     oldnode = null;
+    svg.selectAll('defs').data(data.nodes).exit().remove();
     defs = svg.selectAll('defs').data(data.nodes).enter().append('pattern').attr('id', function(it){
       return 'defs_h' + it.id;
     }).attr('patternUnits', 'userSpaceOnUse').attr('width', 100).attr('height', 100);
     imgs = defs.append('image').attr('xlink:href', function(it){
-      return 'img/head/h' + it.gid + '.png';
+      return window.relationData.img[it.name] || 'img/head/unknown.png';
     }).attr('x', 0).attr('y', 0).attr('width', 60).attr('height', 60);
     defs.append('marker').attr('id', 'arrow').attr('viewBox', "-30 -5 10 10").attr('markerWidth', 20).attr('markerHeight', 7).attr('fill', '#bbb').attr('stroke', '#999').attr('stroke-width', 1).attr('orient', 'auto').append('path').attr('d', "M -27 -3 L -22 0 L -27 3 L -27 -3");
     defs.append('marker').attr('id', 'arrow2').attr('viewBox', "10 -5 30 10").attr('markerWidth', 20).attr('markerHeight', 7).attr('fill', '#bbb').attr('stroke', '#999').attr('stroke-width', 1).attr('orient', 'auto').append('path').attr('d', "M 27 -3 L 22 0 L 27 3 L 27 -3");
+    defs = svg.selectAll('defs').each(function(it, i){
+      this.attr('id', function(it){
+        return 'defs_h' + it.id;
+      });
+      return d.selectAll('image').attr('xlink:href', function(it){
+        return window.relationData.img[it.name];
+      });
+    });
     lines = link.append('line').attr('class', 'link').attr('marker-end', 'url(#arrow)').attr('marker-start', function(it){
       if (it.bidirect) {
         return 'url(#arrow2)';
@@ -241,7 +254,14 @@
     });
     nodes = circleBox.selectAll('g.circle-group');
     lines = lineBox.selectAll('line.link').data(data.links);
-    circles = circleBox.selectAll('circle.node').attr('stroke', '#999').data(data.nodes);
+    circles = circleBox.selectAll('circle.node').attr('fill', function(){
+      return '#999';
+    }).attr('stroke', '#999').data(data.nodes);
+    setTimeout(function(){
+      return circles.attr('fill', function(it){
+        return "url(#defs_h" + it.id + ")";
+      });
+    }, 100);
     relations = lineBox.selectAll("g.line-group > g").data(data.links);
     return force.on('tick', function(){
       lines.attr('x1', function(it){
@@ -327,7 +347,7 @@
     var n, names, x;
     n = data.nodes;
     names = [];
-    names = ['-', '-'].concat((function(){
+    names = ['-'].concat((function(){
       var i$, to$, results$ = [];
       for (i$ = 0, to$ = n.length; i$ < to$; ++i$) {
         x = i$;
@@ -335,20 +355,65 @@
       }
       return results$;
     }()));
-    d3.select('select#name-chooser').selectAll('option').data(names).enter().append('option').attr('value', function(it){
+    d3.select('select#name-chooser').selectAll('option').data(names).exit().remove();
+    d3.select('select#name-chooser').selectAll('option').data(names).enter().append('option');
+    d3.select('select#name-chooser').selectAll('option').attr('value', function(it){
       return it;
     }).text(function(it){
       return it;
     });
-    d3.select('select#source-chooser').selectAll('option').data(names).enter().append('option').attr('value', function(it){
+    d3.select('select#source-chooser').selectAll('option').data(names).exit().remove();
+    d3.select('select#source-chooser').selectAll('option').data(names).enter().append('option');
+    d3.select('select#source-chooser').selectAll('option').attr('value', function(it){
       return it;
     }).text(function(it){
       return it;
     });
-    return d3.select('select#target-chooser').selectAll('option').data(names).enter().append('option').attr('value', function(it){
+    d3.select('select#target-chooser').selectAll('option').data(names).exit().remove();
+    d3.select('select#target-chooser').selectAll('option').data(names).enter().append('option');
+    return d3.select('select#target-chooser').selectAll('option').attr('value', function(it){
       return it;
     }).text(function(it){
       return it;
+    });
+  };
+  initDb = function(domain){
+    window.relationData = {
+      nodes: [],
+      links: [],
+      img: {}
+    };
+    window.nameHash = {};
+    window.linkHash = {};
+    $('#loading').fadeIn(100);
+    mpl = new Firebase("https://ppllink.firebaseio.com/" + domain);
+    return mpl.on('value', function(s){
+      var _d, data, k, ref$, v;
+      reloadWorkaround = reloadWorkaround + 1;
+      _d = s.val();
+      data = window.relationData;
+      for (k in ref$ = _d.nodes) {
+        v = ref$[k];
+        if (!window.nameHash[v.name]) {
+          data.nodes.push(v);
+        }
+        window.nameHash[v.name] = v;
+      }
+      for (k in ref$ = _d.links) {
+        v = ref$[k];
+        if (!window.linkHash[v.name]) {
+          data.links.push(v);
+        }
+        window.linkHash[v.src + " " + v.name + " " + v.des] = v;
+      }
+      for (k in ref$ = _d.img) {
+        v = ref$[k];
+        data.img[k] = v;
+      }
+      window.relationData = data;
+      updateSelect(data);
+      window.updateRelations(data);
+      return $('#loading').fadeOut(400);
     });
   };
   init = function(error, graph){
@@ -372,9 +437,16 @@
     formatNomatch = function(){
       return "將新增名稱";
     };
+    $('select#domain-chooser').select2({
+      width: '110px',
+      placeholder: '選擇領域',
+      formatNoMatches: formatNomatch
+    }).on('change', function(e){
+      return initDb(e.val);
+    });
     $('select#source-chooser').select2({
-      width: '100px',
-      placeholder: '設定事主',
+      width: '110px',
+      placeholder: '加或選主角',
       formatNoMatches: formatNomatch,
       createSearchChioce: function(it){
         return it;
@@ -414,7 +486,8 @@
     });
     $('select#target-chooser').select2({
       width: '110px',
-      placeholder: '設定目標'
+      placeholder: '加或選目標',
+      formatNoMatches: formatNomatch
     });
     height = $('body').height() - $('#content').position().top - 30;
     $('#content').height(height);
@@ -435,30 +508,47 @@
       return x$;
     });
     init(null, window.relationData);
-    mpl = new Firebase('https://ppllink.firebaseio.com/');
-    mpl.auth('s0Om3gu03flOKJp9tmk2pONDcadf4qDEF1NltAHt', function(){});
-    return mpl.on('value', function(s){
-      var _d, data, k, ref$, v;
-      _d = s.val();
-      data = window.relationData;
-      for (k in ref$ = _d.nodes) {
-        v = ref$[k];
-        if (!window.nameHash[v.name]) {
-          data.nodes.push(v);
-        }
-        window.nameHash[v.name] = v;
-      }
-      for (k in ref$ = _d.links) {
-        v = ref$[k];
-        if (!window.linkHash[v.name]) {
-          data.links.push(v);
-        }
-        window.linkHash[v.src + " " + v.name + " " + v.des] = v;
-      }
-      window.relationData = data;
-      updateSelect(data);
-      window.updateRelations(data);
-      return $('#loading').fadeOut(400);
-    });
+    return initDb('g0v');
   });
+  headPayload = null;
+  headName = null;
+  this.headIconUpload = function(name){
+    var val;
+    val = $(headName).val();
+    if (!val) {
+      return;
+    }
+    mpl.child('img').child(val).set(headPayload);
+    return window.relationData.img[val] = headPayload;
+  };
+  headIconSelect = function(evt){
+    var f, reader;
+    f = evt.target.files[0];
+    reader = new FileReader();
+    reader.onload = function(e){
+      var fsize;
+      fsize = e.total > 1000000
+        ? parseInt(e.total / 1000000) + "MB"
+        : parseInt(e.total / 1000) + "KB";
+      $('#head-icon-size').text("檔案大小: " + fsize);
+      if (e.total < 100000) {
+        headPayload = e.target.result;
+        document.getElementById('upload-preview').src = headPayload;
+        $('#head-icon-size').css('color', '#000');
+        return $('#head-upload-btn').removeClass('disabled').addClass('btn-primary').prop('disabled', false);
+      } else {
+        $('#head-icon-size').css('color', '#900');
+        return $('#head-upload-btn').addClass('disabled').removeClass('btn-primary').prop('disabled', true);
+      }
+    };
+    return reader.readAsDataURL(f);
+  };
+  fu = document.getElementById('head-upload');
+  fu.addEventListener('change', headIconSelect, false);
+  this.setIcon = function(name){
+    if (name) {
+      headName = name;
+    }
+    return $('#head-upload-modal').modal('toggle');
+  };
 }).call(this);

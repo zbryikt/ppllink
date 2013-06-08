@@ -9,10 +9,11 @@ svg    = null
 gc1    = null
 gc2    = null
 mpl    = null
+reload-workaround = 0
 circle-box    = null
 line-box    = null
 custom-drag = null
-@relation-data = nodes:[], links:[]
+@relation-data = nodes:[], links:[], img: {}
 @name-hash = {}
 @link-hash = {}
 
@@ -164,20 +165,23 @@ generate = (error, graph) ->
   data = tmp2d3 data
   force.nodes data.nodes
        .links data.links .start!
+  line-box.selectAll \g.line-group .data data.links .exit!remove!
   link = line-box.selectAll \g.line-group .data data.links .enter! .append \g .attr \class \line-group
+  circle-box.selectAll \g.circle-group .data data.nodes .exit!remove!
   nodes := circle-box.selectAll \g.circle-group .data data.nodes .enter! .append \g
       .attr \class \circle-group
       .attr \x 100
       .attr \y 100
 
   oldnode = null
+  svg.selectAll \defs .data data.nodes .exit!remove!
   defs = svg.selectAll \defs .data data.nodes .enter! .append \pattern
       .attr \id -> \defs_h + it.id
       .attr \patternUnits \userSpaceOnUse
       .attr \width 100
       .attr \height 100
   imgs = defs.append \image
-      .attr \xlink:href -> \img/head/h +it.gid + \.png
+      .attr \xlink:href -> window.relation-data.img[it.name] or \img/head/unknown.png
       .attr \x 0
       .attr \y 0
       .attr \width 60
@@ -204,6 +208,11 @@ generate = (error, graph) ->
       .attr \orient \auto
       .append \path
       .attr \d "M 27 -3 L 22 0 L 27 3 L 27 -3"
+  
+  defs = svg.selectAll \defs .each (it,i) ->
+    this.attr \id -> \defs_h + it.id
+    d.selectAll \image
+      .attr \xlink:href -> window.relation-data.img[it.name]#\img/head/h +it.gid + \.png
 
   lines = link.append \line
       .attr \class \link
@@ -272,7 +281,11 @@ generate = (error, graph) ->
 
   nodes := circle-box.selectAll \g.circle-group
   lines = line-box.selectAll \line.link .data data.links
-  circles = circle-box.selectAll \circle.node .attr \stroke \#999 .data data.nodes
+  circles = circle-box.selectAll \circle.node 
+      .attr \fill -> \#999 #"url(\#defs_h#{it.id})"
+      .attr \stroke \#999 .data data.nodes
+  setTimeout -> circles.attr \fill -> "url(\#defs_h#{it.id})"
+  ,100
   relations = line-box.selectAll "g.line-group > g" .data data.links
   force.on \tick ->
     lines.attr \x1 -> it.source.x
@@ -339,16 +352,46 @@ randomizer = null
 update-select = (data) ->
   n = data.nodes
   names = []
-  names = <[- -]> ++ [n[x].name for x til n.length]
+  names = <[-]> ++ [n[x].name for x til n.length]
+  d3.select \select#name-chooser .selectAll \option .data names .exit!remove!
   d3.select \select#name-chooser .selectAll \option .data names .enter! .append \option
+  d3.select \select#name-chooser .selectAll \option
       .attr \value -> it
       .text -> it
+  d3.select \select#source-chooser .selectAll \option .data names .exit!remove!
   d3.select \select#source-chooser .selectAll \option .data names .enter! .append \option
+  d3.select \select#source-chooser .selectAll \option
       .attr \value -> it
       .text -> it
+  d3.select \select#target-chooser .selectAll \option .data names .exit!remove!
   d3.select \select#target-chooser .selectAll \option .data names .enter! .append \option
+  d3.select \select#target-chooser .selectAll \option
       .attr \value -> it
       .text -> it
+
+init-db = (domain) ->
+  window.relation-data = nodes:[], links:[], img: {}
+  window.name-hash = {}
+  window.link-hash = {}
+  $ \#loading .fadeIn 100
+  mpl := new Firebase "https://ppllink.firebaseio.com/#{domain}"
+  mpl.on \value, (s) ->
+    reload-workaround := reload-workaround + 1
+    #if reload-workaround > 3 then window.location.reload!
+    _d = s.val!
+    data = window.relation-data
+    for k,v of _d.nodes
+      if !window.name-hash[v.name] then data.nodes.push v
+      window.name-hash[v.name] = v
+    for k,v of _d.links
+      if !window.link-hash[v.name] then data.links.push v
+      window.link-hash["#{v.src} #{v.name} #{v.des}"] = v
+    for k,v of _d.img
+      data.img[k] = v
+    window.relation-data = data
+    update-select data
+    window.update-relations data
+    $ \#loading .fadeOut 400
 
 init = (error,graph) ->
   window.toggle-generate!
@@ -371,11 +414,13 @@ $ document .ready ->
     width: \110px
   format-nomatch = ->
     "將新增名稱"
+  $ \select#domain-chooser .select2 do
+    width: \110px placeholder: \選擇領域 formatNoMatches: format-nomatch
+  .on \change (e) -> init-db e.val
   $ \select#source-chooser .select2 do
-    width: \100px placeholder: \設定事主 formatNoMatches: format-nomatch
+    width: \110px placeholder: \加或選主角 formatNoMatches: format-nomatch
     createSearchChioce: -> it
-    change: ->
-      $ \#blah .text \hihi
+    change: -> $ \#blah .text \hihi
   format-link-select = ->
     if !it.id then return it.text
     bk = switch $(it.element)?.data \type
@@ -394,7 +439,7 @@ $ document .ready ->
     formatNoMatches: format-nomatch
   $ \select#target-chooser .select2 do
     width: \110px
-    placeholder: \設定目標 #..select2 \disable formatNoMatches: format-nomatch
+    placeholder: \加或選目標 formatNoMatches: format-nomatch
   height := ($ \body .height!) - ($ \#content .position! .top) - 30
   $ \#content .height height
   $ window .resize ->
@@ -407,27 +452,39 @@ $ document .ready ->
     force?.size [width,height] 
         ..start! if playstate
   init null, window.relation-data
-  mpl := new Firebase \https://ppllink.firebaseio.com/
-  mpl.auth \s0Om3gu03flOKJp9tmk2pONDcadf4qDEF1NltAHt (->)
-  mpl.on \value, (s) ->
-    _d = s.val!
-    data = window.relation-data #nodes: [], links: []
-    for k,v of _d.nodes
-      if !window.name-hash[v.name] then data.nodes.push v
-      window.name-hash[v.name] = v
-    for k,v of _d.links
-      if !window.link-hash[v.name] then data.links.push v
-      window.link-hash["#{v.src} #{v.name} #{v.des}"] = v
-#    for k,v of window.name-hash
-#      data.nodes.push v
-#    for k,v of window.link-hash
-#      data.links.push v
-    window.relation-data = data
-    update-select data
-    window.update-relations data
-    $ \#loading .fadeOut 400
-    
+  init-db \g0v
 
   #if ui-test then d3.json "/ppllink/names.json" init
   #else d3.json "/names" init
 
+head-payload = null
+head-name = null
+@head-icon-upload = (name) ->
+  val = $ head-name .val!
+  if !val then return
+  mpl.child \img .child val .set head-payload
+  window.relation-data.img[val] = head-payload
+    
+head-icon-select = (evt) ->
+  f = evt.target.files.0
+  reader = new FileReader!
+  reader.onload = (e) ->
+    fsize = if e.total>1000000 then "#{parseInt e.total/1000000}MB" else "#{parseInt e.total/1000}KB"
+    $ \#head-icon-size .text "檔案大小: #fsize"
+    if e.total < 100000 then
+      head-payload := e.target.result
+      document.getElementById \upload-preview .src = head-payload
+      $ \#head-icon-size .css \color, \#000
+      $ \#head-upload-btn .removeClass \disabled .addClass \btn-primary .prop \disabled false
+    else
+      $ \#head-icon-size .css \color, \#900
+      $ \#head-upload-btn .addClass \disabled .removeClass \btn-primary .prop \disabled true
+    
+  reader.readAsDataURL f
+
+fu = document.getElementById \head-upload
+fu.addEventListener \change, head-icon-select, false
+
+@set-icon = (name) ->
+  if name then head-name := name
+  $ \#head-upload-modal .modal \toggle
