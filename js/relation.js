@@ -518,10 +518,11 @@
     });
     init(null, window.relationData);
     domain = window.location.href.split("?")[1];
-    if (domain === null) {
+    if (!domain) {
       domain = 'sandbox';
     }
     $('#domain-chooser').val(domain);
+    console.log(domain);
     return initDb(domain);
   });
   headPayload = null;
