@@ -232,9 +232,7 @@
     }).call(force.customDrag);
     names = nodes.append('g');
     names.append('rect').attr('x', -5).attr('y', 56).attr('rx', 5).attr('ry', 5).attr('width', 70).attr('height', 18).attr('fill', '#fff').attr('style', 'opacity:0.3');
-    names.append('text').attr('width', 200).attr('x', 30).attr('y', 70).attr('text-anchor', 'middle').text(function(it){
-      return it.name;
-    }).on('mousemover', function(it){
+    names.append('text').attr('class', 'text-name').attr('width', 200).attr('x', 30).attr('y', 70).attr('text-anchor', 'middle').on('mousemover', function(it){
       if (oldnode === it) {
         return;
       }
@@ -247,9 +245,13 @@
         return force.start();
       }
     });
+    circleBox.selectAll('text.text-name').data(data.nodes).text(function(it){
+      return it.name;
+    });
     relations = link.append('g').attr('width', 100).attr('x', 0).attr('y', 0);
     relations.append('rect').attr('x', -35).attr('y', -14).attr('rx', 5).attr('ry', 5).attr('width', 70).attr('height', 18).attr('fill', '#fff').attr('style', 'opacity:0.3');
-    relations.append('text').attr('text-anchor', 'middle').attr('font-size', 11).text(function(it){
+    relations.append('text').attr('class', 'text-relation').attr('text-anchor', 'middle').attr('font-size', 11);
+    lineBox.selectAll('text.text-relation').data(data.links).text(function(it){
       return it.name;
     });
     nodes = circleBox.selectAll('g.circle-group');
