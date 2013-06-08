@@ -8,7 +8,13 @@ force  = null
 svg    = null
 gc1    = null
 gc2    = null
+mpl    = null
+circle-box    = null
+line-box    = null
 custom-drag = null
+@relation-data = nodes:[], links:[]
+@name-hash = {}
+@link-hash = {}
 
 clear = ->
   $ \svg .remove!
@@ -63,6 +69,8 @@ playstate = 1
   else
     force.stop!
     $ \#toggle-play .addClass \active
+@xxblah = ->
+  alert \hi
 
 depthvalue = 1
 depthmap = [0 1 2 3 4 6 12 20 \&#x221E; ]
@@ -126,9 +134,9 @@ gravitystate = 1
   | _ => force.gravity 1.5 .start!
 
 generate = (error, graph) ->
-  graph = tmp2d3 graph
-  force.nodes graph.nodes
-       .links graph.links .start!
+  #graph = tmp2d3 graph
+  #force.nodes graph.nodes
+  #     .links graph.links .start!
 
   gc2 := svg.append \circle
       .attr \cx width/2 
@@ -147,19 +155,33 @@ generate = (error, graph) ->
   [x.transition! .duration 750 .style \opacity 1 for x in [gc1,gc2]]
   d3.select \#content .transition! .duration 750 .style \background \#dfe
 
-  defs = svg.selectAll \defs .data graph.nodes .enter! .append \pattern
+  line-box := svg.append \g
+  circle-box := svg.append \g
+  #window.update-relations graph
+  #$ \#loading .fadeOut 400
+
+@update-relations = (data) ->
+  data = tmp2d3 data
+  force.nodes data.nodes
+       .links data.links .start!
+  link = line-box.selectAll \g.line-group .data data.links .enter! .append \g .attr \class \line-group
+  nodes := circle-box.selectAll \g.circle-group .data data.nodes .enter! .append \g
+      .attr \class \circle-group
+      .attr \x 100
+      .attr \y 100
+
+  oldnode = null
+  defs = svg.selectAll \defs .data data.nodes .enter! .append \pattern
       .attr \id -> \defs_h + it.id
       .attr \patternUnits \userSpaceOnUse
       .attr \width 100
       .attr \height 100
-
   imgs = defs.append \image
       .attr \xlink:href -> \img/head/h +it.gid + \.png
       .attr \x 0
       .attr \y 0
       .attr \width 60
       .attr \height 60
-
   defs.append \marker
       .attr \id \arrow
       .attr \viewBox "-30 -5 10 10"
@@ -171,7 +193,6 @@ generate = (error, graph) ->
       .attr \orient \auto
       .append \path
       .attr \d "M -27 -3 L -22 0 L -27 3 L -27 -3"
-
   defs.append \marker
       .attr \id \arrow2
       .attr \viewBox "10 -5 30 10"
@@ -183,13 +204,12 @@ generate = (error, graph) ->
       .attr \orient \auto
       .append \path
       .attr \d "M 27 -3 L 22 0 L 27 3 L 27 -3"
-  link = svg.selectAll \line.link .data graph.links .enter! .append \g
 
-  nodes := svg.selectAll \circle.node .data graph.nodes .enter! .append \g
-      .attr \x 100
-      .attr \y 100
-
-  oldnode = null
+  lines = link.append \line
+      .attr \class \link
+      .attr \marker-end 'url(#arrow)'
+      .attr \marker-start -> if it.bidirect then 'url(#arrow2)'
+      .style \stroke-width -> 2 #Math.sqrt it.value
   circles = nodes.append \circle
       .attr \class \node
       .attr \cx 30
@@ -216,12 +236,6 @@ generate = (error, graph) ->
           it.fixed = true
       .call force.custom-drag 
 
-  lines = link.append \line
-      .attr \class \link
-      .attr \marker-end 'url(#arrow)'
-      .attr \marker-start -> if it.bidirect then 'url(#arrow2)'
-      .style \stroke-width -> 2 #Math.sqrt it.value
-  
   names = nodes.append \g
   names.append \rect
       .attr \x -5    .attr \y 56
@@ -256,6 +270,10 @@ generate = (error, graph) ->
       .attr \font-size 11
       .text -> it.name
 
+  nodes := circle-box.selectAll \g.circle-group
+  lines = line-box.selectAll \line.link .data data.links
+  circles = circle-box.selectAll \circle.node .attr \stroke \#999 .data data.nodes
+  relations = line-box.selectAll "g.line-group > g" .data data.links
   force.on \tick ->
     lines.attr \x1 -> it.source.x
       .attr \y1 -> it.source.y
@@ -269,15 +287,40 @@ generate = (error, graph) ->
       if it.bidirect then (it.source.y + it.target.y)/2 else (2*it.source.y + it.target.y)/3
       ")" ]
 
-  $ \#loading .fadeOut 400
+
 
 @toggle-generate = ->
   $ \#loading .fadeIn 100
   if randomizer then toggle-randomizer!
   clear!
-  <- setTimeout _, 400
-  if ui-test then d3.json "/ppllink/relation.json?timestamp=#{new Date! .getTime!}" generate
-  else d3.json "/query/#{$ \select#name-chooser .val!}/2" generate
+  #<- setTimeout _, 400
+  #generate null,@relation-data
+  #if ui-test then d3.json "/ppllink/relation.json?timestamp=#{new Date! .getTime!}" generate
+  #else d3.json "/query/#{$ \select#name-chooser .val!}/2" generate
+  
+@toggle-add = ->
+  data = @relation-data
+  src-name = $ \select#source-chooser .val!
+  des-name = $ \select#target-chooser .val!
+  link-name = $ \select#link-chooser .val!
+  for name in [src-name, des-name]
+    #console.log "test #name"
+    if !@name-hash[name]
+      obj = id: data.nodes.length, name: name
+      data.nodes.push obj
+      @name-hash[name] = obj
+      mpl.child \nodes .push obj
+      #console.log "add people #name"
+  src-id = @name-hash[src-name]id
+  des-id = @name-hash[des-name]id
+  name = "#src-id #link-name #des-id"
+  if !@link-hash[name]
+    obj = src: src-id, des: des-id, name: link-name
+    data.links.push obj
+    @link-hash[name] = obj
+    mpl.child \links .push obj
+    #console.log "add link #link-name"
+  #@update-relations @relation-data
 
 randomizer = null
 @toggle-randomizer = ->
@@ -293,12 +336,23 @@ randomizer = null
     randomizer := null
   
 #d3.json "/#{if ui-test then "ppllink/" else ""}names" (error,graph) ->
-init = (error,graph) ->
+update-select = (data) ->
+  n = data.nodes
   names = []
-  names = [graph[x].name for x til graph.length]
+  names = <[- -]> ++ [n[x].name for x til n.length]
   d3.select \select#name-chooser .selectAll \option .data names .enter! .append \option
       .attr \value -> it
       .text -> it
+  d3.select \select#source-chooser .selectAll \option .data names .enter! .append \option
+      .attr \value -> it
+      .text -> it
+  d3.select \select#target-chooser .selectAll \option .data names .enter! .append \option
+      .attr \value -> it
+      .text -> it
+
+init = (error,graph) ->
+  window.toggle-generate!
+  generate graph
   #$ \select#name-chooser .change ->
   #  clear!
   #  if ui-test then d3.json "/ppllink/relation.json?timestamp=#{new Date! .getTime!}" generate
@@ -338,7 +392,9 @@ $ document .ready ->
     formatSelection: format-link-select
     formatResult: format-link-select
     formatNoMatches: format-nomatch
-  $ \select#target-chooser .select2 width: \110px placeholder: \設定目標 ..select2 \disable
+  $ \select#target-chooser .select2 do
+    width: \110px
+    placeholder: \設定目標 #..select2 \disable formatNoMatches: format-nomatch
   height := ($ \body .height!) - ($ \#content .position! .top) - 30
   $ \#content .height height
   $ window .resize ->
@@ -350,5 +406,28 @@ $ document .ready ->
         .attr \cy height/2
     force?.size [width,height] 
         ..start! if playstate
-  if ui-test then d3.json "/ppllink/names.json" init
-  else d3.json "/names" init
+  init null, window.relation-data
+  mpl := new Firebase \https://ppllink.firebaseio.com/
+  mpl.auth \s0Om3gu03flOKJp9tmk2pONDcadf4qDEF1NltAHt (->)
+  mpl.on \value, (s) ->
+    _d = s.val!
+    data = window.relation-data #nodes: [], links: []
+    for k,v of _d.nodes
+      if !window.name-hash[v.name] then data.nodes.push v
+      window.name-hash[v.name] = v
+    for k,v of _d.links
+      if !window.link-hash[v.name] then data.links.push v
+      window.link-hash["#{v.src} #{v.name} #{v.des}"] = v
+#    for k,v of window.name-hash
+#      data.nodes.push v
+#    for k,v of window.link-hash
+#      data.links.push v
+    window.relation-data = data
+    update-select data
+    window.update-relations data
+    $ \#loading .fadeOut 400
+    
+
+  #if ui-test then d3.json "/ppllink/names.json" init
+  #else d3.json "/names" init
+

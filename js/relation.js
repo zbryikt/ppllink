@@ -1,5 +1,5 @@
 (function(){
-  var ref$, width, height, uiTest, charge, color, force, svg, gc1, gc2, customDrag, clear, tmp2d3, playstate, depthvalue, depthmap, lockstate, nodes, gravitystate, generate, randomizer, init, join$ = [].join;
+  var ref$, width, height, uiTest, charge, color, force, svg, gc1, gc2, mpl, circleBox, lineBox, customDrag, clear, tmp2d3, playstate, depthvalue, depthmap, lockstate, nodes, gravitystate, generate, randomizer, updateSelect, init, join$ = [].join;
   ref$ = [$('#content').width(), $('#content').height()], width = ref$[0], height = ref$[1];
   uiTest = true;
   charge = function(d){
@@ -10,7 +10,16 @@
   svg = null;
   gc1 = null;
   gc2 = null;
+  mpl = null;
+  circleBox = null;
+  lineBox = null;
   customDrag = null;
+  this.relationData = {
+    nodes: [],
+    links: []
+  };
+  this.nameHash = {};
+  this.linkHash = {};
   clear = function(){
     $('svg').remove();
     force = d3.layout.force().charge(charge).linkDistance(100).gravity(0.1).linkStrength(0.1).size([width, height]);
@@ -90,6 +99,9 @@
       return $('#toggle-play').addClass('active');
     }
   };
+  this.xxblah = function(){
+    return alert('hi');
+  };
   depthvalue = 1;
   depthmap = [0, 1, 2, 3, 4, 6, 12, 20, '&#x221E'];
   this.toggleDepth = function(v){
@@ -149,9 +161,7 @@
     }
   };
   generate = function(error, graph){
-    var i$, ref$, len$, x, defs, imgs, link, oldnode, circles, lines, names, relations;
-    graph = tmp2d3(graph);
-    force.nodes(graph.nodes).links(graph.links).start();
+    var i$, ref$, len$, x;
     gc2 = svg.append('circle').attr('cx', width / 2).attr('cy', height / 2).attr('r', height).attr('fill', '#bec').style('opacity', '0');
     gc1 = svg.append('circle').attr('cx', width / 2).attr('cy', height / 2).attr('r', 3 * height / 4).attr('fill', '#fff').style('opacity', '0');
     for (i$ = 0, len$ = (ref$ = [gc1, gc2]).length; i$ < len$; ++i$) {
@@ -159,7 +169,17 @@
       x.transition().duration(750).style('opacity', 1);
     }
     d3.select('#content').transition().duration(750).style('background', '#dfe');
-    defs = svg.selectAll('defs').data(graph.nodes).enter().append('pattern').attr('id', function(it){
+    lineBox = svg.append('g');
+    return circleBox = svg.append('g');
+  };
+  this.updateRelations = function(data){
+    var link, oldnode, defs, imgs, lines, circles, names, relations;
+    data = tmp2d3(data);
+    force.nodes(data.nodes).links(data.links).start();
+    link = lineBox.selectAll('g.line-group').data(data.links).enter().append('g').attr('class', 'line-group');
+    nodes = circleBox.selectAll('g.circle-group').data(data.nodes).enter().append('g').attr('class', 'circle-group').attr('x', 100).attr('y', 100);
+    oldnode = null;
+    defs = svg.selectAll('defs').data(data.nodes).enter().append('pattern').attr('id', function(it){
       return 'defs_h' + it.id;
     }).attr('patternUnits', 'userSpaceOnUse').attr('width', 100).attr('height', 100);
     imgs = defs.append('image').attr('xlink:href', function(it){
@@ -167,9 +187,13 @@
     }).attr('x', 0).attr('y', 0).attr('width', 60).attr('height', 60);
     defs.append('marker').attr('id', 'arrow').attr('viewBox', "-30 -5 10 10").attr('markerWidth', 20).attr('markerHeight', 7).attr('fill', '#bbb').attr('stroke', '#999').attr('stroke-width', 1).attr('orient', 'auto').append('path').attr('d', "M -27 -3 L -22 0 L -27 3 L -27 -3");
     defs.append('marker').attr('id', 'arrow2').attr('viewBox', "10 -5 30 10").attr('markerWidth', 20).attr('markerHeight', 7).attr('fill', '#bbb').attr('stroke', '#999').attr('stroke-width', 1).attr('orient', 'auto').append('path').attr('d', "M 27 -3 L 22 0 L 27 3 L 27 -3");
-    link = svg.selectAll('line.link').data(graph.links).enter().append('g');
-    nodes = svg.selectAll('circle.node').data(graph.nodes).enter().append('g').attr('x', 100).attr('y', 100);
-    oldnode = null;
+    lines = link.append('line').attr('class', 'link').attr('marker-end', 'url(#arrow)').attr('marker-start', function(it){
+      if (it.bidirect) {
+        return 'url(#arrow2)';
+      }
+    }).style('stroke-width', function(){
+      return 2;
+    });
     circles = nodes.append('circle').attr('class', 'node').attr('cx', 30).attr('cy', 30).attr('r', 30).attr('fill', function(it){
       return "url(#defs_h" + it.id + ")";
     }).attr('stroke', '#999').attr('stroke-width', '2.5px').on('mouseover', function(it){
@@ -193,13 +217,6 @@
         return it.fixed = true;
       }
     }).call(force.customDrag);
-    lines = link.append('line').attr('class', 'link').attr('marker-end', 'url(#arrow)').attr('marker-start', function(it){
-      if (it.bidirect) {
-        return 'url(#arrow2)';
-      }
-    }).style('stroke-width', function(){
-      return 2;
-    });
     names = nodes.append('g');
     names.append('rect').attr('x', -5).attr('y', 56).attr('rx', 5).attr('ry', 5).attr('width', 70).attr('height', 18).attr('fill', '#fff').attr('style', 'opacity:0.3');
     names.append('text').attr('width', 200).attr('x', 30).attr('y', 70).attr('text-anchor', 'middle').text(function(it){
@@ -222,7 +239,11 @@
     relations.append('text').attr('text-anchor', 'middle').attr('font-size', 11).text(function(it){
       return it.name;
     });
-    force.on('tick', function(){
+    nodes = circleBox.selectAll('g.circle-group');
+    lines = lineBox.selectAll('line.link').data(data.links);
+    circles = circleBox.selectAll('circle.node').attr('stroke', '#999').data(data.nodes);
+    relations = lineBox.selectAll("g.line-group > g").data(data.links);
+    return force.on('tick', function(){
       lines.attr('x1', function(it){
         return it.source.x;
       }).attr('y1', function(it){
@@ -247,21 +268,45 @@
         ]);
       });
     });
-    return $('#loading').fadeOut(400);
   };
   this.toggleGenerate = function(){
     $('#loading').fadeIn(100);
     if (randomizer) {
       toggleRandomizer();
     }
-    clear();
-    return setTimeout(function(){
-      if (uiTest) {
-        return d3.json("/ppllink/relation.json?timestamp=" + new Date().getTime(), generate);
-      } else {
-        return d3.json("/query/" + $('select#name-chooser').val() + "/2", generate);
+    return clear();
+  };
+  this.toggleAdd = function(){
+    var data, srcName, desName, linkName, i$, ref$, len$, name, obj, srcId, desId;
+    data = this.relationData;
+    srcName = $('select#source-chooser').val();
+    desName = $('select#target-chooser').val();
+    linkName = $('select#link-chooser').val();
+    for (i$ = 0, len$ = (ref$ = [srcName, desName]).length; i$ < len$; ++i$) {
+      name = ref$[i$];
+      if (!this.nameHash[name]) {
+        obj = {
+          id: data.nodes.length,
+          name: name
+        };
+        data.nodes.push(obj);
+        this.nameHash[name] = obj;
+        mpl.child('nodes').push(obj);
       }
-    }, 400);
+    }
+    srcId = this.nameHash[srcName].id;
+    desId = this.nameHash[desName].id;
+    name = srcId + " " + linkName + " " + desId;
+    if (!this.linkHash[name]) {
+      obj = {
+        src: srcId,
+        des: desId,
+        name: linkName
+      };
+      data.links.push(obj);
+      this.linkHash[name] = obj;
+      return mpl.child('links').push(obj);
+    }
   };
   randomizer = null;
   this.toggleRandomizer = function(){
@@ -278,26 +323,43 @@
       return randomizer = null;
     }
   };
-  init = function(error, graph){
-    var names, res$, i$, to$, x;
+  updateSelect = function(data){
+    var n, names, x;
+    n = data.nodes;
     names = [];
-    res$ = [];
-    for (i$ = 0, to$ = graph.length; i$ < to$; ++i$) {
-      x = i$;
-      res$.push(graph[x].name);
-    }
-    names = res$;
-    return d3.select('select#name-chooser').selectAll('option').data(names).enter().append('option').attr('value', function(it){
+    names = ['-', '-'].concat((function(){
+      var i$, to$, results$ = [];
+      for (i$ = 0, to$ = n.length; i$ < to$; ++i$) {
+        x = i$;
+        results$.push(n[x].name);
+      }
+      return results$;
+    }()));
+    d3.select('select#name-chooser').selectAll('option').data(names).enter().append('option').attr('value', function(it){
+      return it;
+    }).text(function(it){
+      return it;
+    });
+    d3.select('select#source-chooser').selectAll('option').data(names).enter().append('option').attr('value', function(it){
+      return it;
+    }).text(function(it){
+      return it;
+    });
+    return d3.select('select#target-chooser').selectAll('option').data(names).enter().append('option').attr('value', function(it){
       return it;
     }).text(function(it){
       return it;
     });
   };
+  init = function(error, graph){
+    window.toggleGenerate();
+    return generate(graph);
+  };
   $.fn.disableSelect = function(){
     return this.attr('unselectable', 'on').css('user-select', 'none').on('selectstart', false);
   };
   $(document).ready(function(){
-    var formatNomatch, formatLinkSelect, formatLinkResult, x$;
+    var formatNomatch, formatLinkSelect, formatLinkResult;
     $(document).disableSelect();
     $('body').tooltip({
       selector: '[rel=tooltip]'
@@ -350,11 +412,10 @@
       formatResult: formatLinkSelect,
       formatNoMatches: formatNomatch
     });
-    x$ = $('select#target-chooser').select2({
+    $('select#target-chooser').select2({
       width: '110px',
       placeholder: '設定目標'
     });
-    x$.select2('disable');
     height = $('body').height() - $('#content').position().top - 30;
     $('#content').height(height);
     $(window).resize(function(){
@@ -373,10 +434,31 @@
       }
       return x$;
     });
-    if (uiTest) {
-      return d3.json("/ppllink/names.json", init);
-    } else {
-      return d3.json("/names", init);
-    }
+    init(null, window.relationData);
+    mpl = new Firebase('https://ppllink.firebaseio.com/');
+    mpl.auth('s0Om3gu03flOKJp9tmk2pONDcadf4qDEF1NltAHt', function(){});
+    return mpl.on('value', function(s){
+      var _d, data, k, ref$, v;
+      _d = s.val();
+      data = window.relationData;
+      for (k in ref$ = _d.nodes) {
+        v = ref$[k];
+        if (!window.nameHash[v.name]) {
+          data.nodes.push(v);
+        }
+        window.nameHash[v.name] = v;
+      }
+      for (k in ref$ = _d.links) {
+        v = ref$[k];
+        if (!window.linkHash[v.name]) {
+          data.links.push(v);
+        }
+        window.linkHash[v.src + " " + v.name + " " + v.des] = v;
+      }
+      window.relationData = data;
+      updateSelect(data);
+      window.updateRelations(data);
+      return $('#loading').fadeOut(400);
+    });
   });
 }).call(this);

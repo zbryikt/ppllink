@@ -1434,6 +1434,21 @@
 
             this.search.bind("keydown", this.bind(function (e) {
                 if (!this.enabled) return;
+                if(e.which == 13) {
+                        var i, val= this.search.val().replace(/^\s*(.+)\s*$/,"$1");
+                        for(i=this.select[0].childNodes.length-1;i>=0;i--) {
+                                if(val==this.select[0].childNodes[i].value) break;
+                        }
+                        if(i==-1) {
+                                var that=this,node = document.createElement("option");
+                                node.appendChild(document.createTextNode(val));
+                                node.value=val;
+                                this.select[0].appendChild(node);
+                                this.val(val);
+                                setTimeout(function(){that.close();},100);
+                                return;
+                        }
+                }
 
                 if (e.which === KEY.PAGE_UP || e.which === KEY.PAGE_DOWN) {
                     // prevent the page from scrolling
@@ -1562,7 +1577,6 @@
                 // focus the field before calling val so the cursor ends up after the value instead of before
                 this.search.focus();
                 this.search.val(keyWritten);
-
                 // prevent event propagation so it doesnt replay on the now focussed search field and result in double key entry
                 killEvent(e);
             }));
