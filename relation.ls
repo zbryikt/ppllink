@@ -459,7 +459,6 @@ $ document .ready ->
   init null, window.relation-data
   domain = window.location.href.split("?")[1]
   if !domain then domain = \sandbox
-  $ \#domain-chooser .val domain
 
   init-db domain
 
