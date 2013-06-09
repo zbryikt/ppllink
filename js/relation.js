@@ -1,5 +1,5 @@
 (function(){
-  var ref$, width, height, uiTest, charge, color, force, svg, gc1, gc2, mpl, reloadWorkaround, circleBox, lineBox, customDrag, clear, tmp2d3, playstate, depthvalue, depthmap, lockstate, nodes, gravitystate, generate, randomizer, updateSelect, initDb, init, headPayload, headName, headIconSelect, fu, join$ = [].join;
+  var ref$, width, height, uiTest, charge, color, force, svg, gc1, gc2, mpl, reloadWorkaround, circleBox, lineBox, customDrag, currentDomain, clear, tmp2d3, playstate, depthvalue, depthmap, lockstate, nodes, gravitystate, generate, randomizer, updateSelect, initDb, init, headPayload, headName, headIconSelect, fu, join$ = [].join;
   ref$ = [$('#content').width(), $('#content').height()], width = ref$[0], height = ref$[1];
   uiTest = true;
   charge = function(d){
@@ -15,6 +15,7 @@
   circleBox = null;
   lineBox = null;
   customDrag = null;
+  currentDomain = 'sandbox';
   this.relationData = {
     nodes: [],
     links: [],
@@ -185,7 +186,7 @@
     oldnode = null;
     svg.selectAll('defs').data(data.nodes).exit().remove();
     defs = svg.selectAll('defs').data(data.nodes).enter().append('pattern').attr('id', function(it){
-      return 'defs_h' + it.id;
+      return "defs-head-" + currentDomain + "-" + it.id;
     }).attr('patternUnits', 'userSpaceOnUse').attr('width', 100).attr('height', 100);
     imgs = defs.append('image').attr('xlink:href', function(it){
       return window.relationData.img[it.name] || 'img/head/unknown.png';
@@ -194,7 +195,7 @@
     defs.append('marker').attr('id', 'arrow2').attr('viewBox', "10 -5 30 10").attr('markerWidth', 20).attr('markerHeight', 7).attr('fill', '#bbb').attr('stroke', '#999').attr('stroke-width', 1).attr('orient', 'auto').append('path').attr('d', "M 27 -3 L 22 0 L 27 3 L 27 -3");
     defs = svg.selectAll('defs').each(function(it, i){
       this.attr('id', function(it){
-        return 'defs_h' + it.id;
+        return "defs-head-" + currentDomain + "-" + it.id;
       });
       return d.selectAll('image').attr('xlink:href', function(it){
         return window.relationData.img[it.name];
@@ -208,7 +209,7 @@
       return 2;
     });
     circles = nodes.append('circle').attr('class', 'node').attr('cx', 30).attr('cy', 30).attr('r', 30).attr('fill', function(it){
-      return "url(#defs_h" + it.id + ")";
+      return "url(#defs-head-" + currentDomain + "-" + it.id + ")";
     }).attr('stroke', '#999').attr('stroke-width', '2.5px').on('mouseover', function(it){
       if (oldnode === it) {
         return;
@@ -261,7 +262,7 @@
     }).attr('stroke', '#999').data(data.nodes);
     setTimeout(function(){
       return circles.attr('fill', function(it){
-        return "url(#defs_h" + it.id + ")";
+        return "url(#defs-head-" + currentDomain + "-" + it.id + ")";
       });
     }, 100);
     relations = lineBox.selectAll("g.line-group > g").data(data.links);
@@ -346,17 +347,15 @@
     }
   };
   updateSelect = function(data){
-    var n, names, x;
+    var n, names, res$, i$, to$, x;
     n = data.nodes;
     names = [];
-    names = ['-'].concat((function(){
-      var i$, to$, results$ = [];
-      for (i$ = 0, to$ = n.length; i$ < to$; ++i$) {
-        x = i$;
-        results$.push(n[x].name);
-      }
-      return results$;
-    }()));
+    res$ = [];
+    for (i$ = 0, to$ = n.length; i$ < to$; ++i$) {
+      x = i$;
+      res$.push(n[x].name);
+    }
+    names = res$;
     d3.select('select#name-chooser').selectAll('option').data(names).exit().remove();
     d3.select('select#name-chooser').selectAll('option').data(names).enter().append('option');
     d3.select('select#name-chooser').selectAll('option').attr('value', function(it){
@@ -380,6 +379,7 @@
     });
   };
   initDb = function(domain){
+    currentDomain = domain;
     window.relationData = {
       nodes: [],
       links: [],
@@ -521,7 +521,6 @@
     if (!domain) {
       domain = 'sandbox';
     }
-    $('select#domain-chooser').val("測試區");
     return initDb(domain);
   });
   headPayload = null;

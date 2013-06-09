@@ -13,6 +13,7 @@ reload-workaround = 0
 circle-box    = null
 line-box    = null
 custom-drag = null
+current-domain = \sandbox
 @relation-data = nodes:[], links:[], img: {}
 @name-hash = {}
 @link-hash = {}
@@ -176,7 +177,7 @@ generate = (error, graph) ->
   oldnode = null
   svg.selectAll \defs .data data.nodes .exit!remove!
   defs = svg.selectAll \defs .data data.nodes .enter! .append \pattern
-      .attr \id -> \defs_h + it.id
+      .attr \id -> "defs-head-#{current-domain}-#{it.id}"
       .attr \patternUnits \userSpaceOnUse
       .attr \width 100
       .attr \height 100
@@ -210,7 +211,7 @@ generate = (error, graph) ->
       .attr \d "M 27 -3 L 22 0 L 27 3 L 27 -3"
   
   defs = svg.selectAll \defs .each (it,i) ->
-    this.attr \id -> \defs_h + it.id
+    this.attr \id -> "defs-head-#{current-domain}-#{it.id}"
     d.selectAll \image
       .attr \xlink:href -> window.relation-data.img[it.name]#\img/head/h +it.gid + \.png
 
@@ -224,7 +225,7 @@ generate = (error, graph) ->
       .attr \cx 30
       .attr \cy 30
       .attr \r 30
-      .attr \fill -> "url(\#defs_h#{it.id})"
+      .attr \fill -> "url(\#defs-head-#{current-domain}-#{it.id})"
       .attr \stroke \#999
       .attr \stroke-width \2.5px
       .on \mouseover -> 
@@ -286,9 +287,9 @@ generate = (error, graph) ->
   nodes := circle-box.selectAll \g.circle-group
   lines = line-box.selectAll \line.link .data data.links
   circles = circle-box.selectAll \circle.node 
-      .attr \fill -> \#999 #"url(\#defs_h#{it.id})"
+      .attr \fill -> \#999
       .attr \stroke \#999 .data data.nodes
-  setTimeout -> circles.attr \fill -> "url(\#defs_h#{it.id})"
+  setTimeout -> circles.attr \fill -> "url(\#defs-head-#{current-domain}-#{it.id})"
   ,100
   relations = line-box.selectAll "g.line-group > g" .data data.links
   force.on \tick ->
@@ -356,7 +357,7 @@ randomizer = null
 update-select = (data) ->
   n = data.nodes
   names = []
-  names = <[-]> ++ [n[x].name for x til n.length]
+  names = [n[x].name for x til n.length]
   d3.select \select#name-chooser .selectAll \option .data names .exit!remove!
   d3.select \select#name-chooser .selectAll \option .data names .enter! .append \option
   d3.select \select#name-chooser .selectAll \option
@@ -374,6 +375,7 @@ update-select = (data) ->
       .text -> it
 
 init-db = (domain) ->
+  current-domain := domain
   window.relation-data = nodes:[], links:[], img: {}
   window.name-hash = {}
   window.link-hash = {}
