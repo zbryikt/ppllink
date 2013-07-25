@@ -211,6 +211,9 @@
     circles = nodes.append('circle').attr('class', 'node').attr('cx', 30).attr('cy', 30).attr('r', 30).attr('fill', function(it){
       return "url(#defs-head-" + currentDomain + "-" + it.id + ")";
     }).attr('stroke', '#999').attr('stroke-width', '2.5px').on('mouseover', function(it){
+      if (lockstate) {
+        return;
+      }
       if (oldnode === it) {
         return;
       }
@@ -517,7 +520,7 @@
       return x$;
     });
     init(null, window.relationData);
-    domain = window.location.href.split("?")[1];
+    domain = window.location.href.split('?')[1].split('#')[0];
     if (!domain) {
       domain = 'sandbox';
     }

@@ -229,6 +229,7 @@ generate = (error, graph) ->
       .attr \stroke \#999
       .attr \stroke-width \2.5px
       .on \mouseover -> 
+        if lockstate then return
         if oldnode==it then return
         if oldnode then oldnode.hover = 0
         it <<< hover: 1
@@ -459,7 +460,7 @@ $ document .ready ->
     force?.size [width,height] 
         ..start! if playstate
   init null, window.relation-data
-  domain = window.location.href.split("?")[1]
+  domain = window.location.href.split \? .1.split \# .0
   if !domain then domain = \sandbox
 
   init-db domain
