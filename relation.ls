@@ -36,7 +36,7 @@ clear = ->
           it.px = d3.event.x
           it.py = d3.event.y
           force.resume!
-        .on \dragend   -> 
+        .on \dragend   ->
           if !playstate then force.stop!
           it.fixed .&.=1
     this.on \mouseover.force -> it.fixed .|.=4
@@ -52,7 +52,7 @@ tmp2d3 = ->
     gid:      it.nodes[i].id
     name:     it.nodes[i].name
     group:    i
-  } for i til it.nodes.length] 
+  } for i til it.nodes.length]
   links: [{
     source:   position[it.links[i].src]
     target:   position[it.links[i].des]
@@ -65,7 +65,7 @@ playstate = 1
 @toggle-play = ->
   if !force then return
   playstate := 1-playstate
-  if playstate 
+  if playstate
     force.start!
     $ \#toggle-play .removeClass \active
   else
@@ -101,7 +101,7 @@ gravitystate = 1
   gravitystate := v
   $ "\#toggle-gravity li:nth-child(#{gravitystate})" .addClass \active
   switch v
-  |1 => 
+  |1 =>
     gc1.transition! .duration 750
       .attr \r 3*height/4
     gc2.transition! .delay 100 .duration 750
@@ -109,7 +109,7 @@ gravitystate = 1
       .attr \r height
     d3.select \#content .transition! .duration 750 .style \background \#dfe
     force.gravity 0.1 .start!
-  |2 => 
+  |2 =>
     gc1.transition! .duration 750
       .attr \r 3*height/5
     gc2.transition! .delay 100 .duration 750
@@ -117,7 +117,7 @@ gravitystate = 1
       .attr \r 4*height/5
     d3.select \#content .transition! .duration 750 .style \background \#efd
     force.gravity 0.2 .start!
-  |3 => 
+  |3 =>
     gc1.transition! .duration 750
       .attr \r 2*height/5
     gc2.transition! .delay 100 .duration 750
@@ -141,14 +141,14 @@ generate = (error, graph) ->
   #     .links graph.links .start!
 
   gc2 := svg.append \circle
-      .attr \cx width/2 
+      .attr \cx width/2
       .attr \cy height/2
       .attr \r  height
       .attr \fill \#bec
       .style \opacity \0
 
   gc1 := svg.append \circle
-      .attr \cx width/2 
+      .attr \cx width/2
       .attr \cy height/2
       .attr \r  3*height/4
       .attr \fill \#fff
@@ -209,7 +209,7 @@ generate = (error, graph) ->
       .attr \orient \auto
       .append \path
       .attr \d "M 27 -3 L 22 0 L 27 3 L 27 -3"
-  
+
   defs = svg.selectAll \defs .each (it,i) ->
     this.attr \id -> "defs-head-#{current-domain}-#{it.id}"
     d.selectAll \image
@@ -228,7 +228,7 @@ generate = (error, graph) ->
       .attr \fill -> "url(\#defs-head-#{current-domain}-#{it.id})"
       .attr \stroke \#999
       .attr \stroke-width \2.5px
-      .on \mouseover -> 
+      .on \mouseover ->
         if lockstate then return
         if oldnode==it then return
         if oldnode then oldnode.hover = 0
@@ -236,7 +236,7 @@ generate = (error, graph) ->
         oldnode := it
         if playstate then force.start!
       #.on \mouseout -> it <<< hover: 0, fixed: false; force.start!
-      .on \click -> 
+      .on \click ->
         # $ d3.event.target .popover title: "test"
         # $ d4.event.target .popover \show
         if it.fixed
@@ -245,7 +245,7 @@ generate = (error, graph) ->
         else
           $ d3.event.target .attr \stroke \#f00
           it.fixed = true
-      .call force.custom-drag 
+      .call force.custom-drag
 
   names = nodes.append \g
   names.append \rect
@@ -259,7 +259,7 @@ generate = (error, graph) ->
       .attr \width 200
       .attr \x 30  .attr \y 70
       .attr \text-anchor \middle
-      .on \mousemover -> 
+      .on \mousemover ->
         if oldnode==it then return
         if oldnode then oldnode.hover = 0
         oldnode := it
@@ -287,7 +287,7 @@ generate = (error, graph) ->
 
   nodes := circle-box.selectAll \g.circle-group
   lines = line-box.selectAll \line.link .data data.links
-  circles = circle-box.selectAll \circle.node 
+  circles = circle-box.selectAll \circle.node
       .attr \fill -> \#999
       .attr \stroke \#999 .data data.nodes
   setTimeout -> circles.attr \fill -> "url(\#defs-head-#{current-domain}-#{it.id})"
@@ -316,7 +316,7 @@ generate = (error, graph) ->
   #generate null,@relation-data
   #if ui-test then d3.json "/ppllink/relation.json?timestamp=#{new Date! .getTime!}" generate
   #else d3.json "/query/#{$ \select#name-chooser .val!}/2" generate
-  
+
 @toggle-add = ->
   data = @relation-data
   src-name = $ \select#source-chooser .val!
@@ -353,7 +353,7 @@ randomizer = null
     $ \#toggle-random .removeClass \active
     clearInterval randomizer
     randomizer := null
-  
+
 #d3.json "/#{if ui-test then "ppllink/" else ""}names" (error,graph) ->
 update-select = (data) ->
   n = data.nodes
@@ -441,7 +441,7 @@ $ document .ready ->
   $ \select#link-chooser .select2 do
     placeholder: \設定關係
     allowClear: true
-    width: \120px 
+    width: \120px
     formatSelection: format-link-select
     formatResult: format-link-select
     formatNoMatches: format-nomatch
@@ -457,10 +457,10 @@ $ document .ready ->
         .attr \cy height/2
     gc1?.attr \cx width/2
         .attr \cy height/2
-    force?.size [width,height] 
+    force?.size [width,height]
         ..start! if playstate
   init null, window.relation-data
-  domain = window.location.href.split \? .1.split \# .0
+  domain = window.location.href.split("?")[1]
   if !domain then domain = \sandbox
 
   init-db domain
@@ -475,7 +475,7 @@ head-name = null
   if !val then return
   mpl.child \img .child val .set head-payload
   window.relation-data.img[val] = head-payload
-    
+
 head-icon-select = (evt) ->
   f = evt.target.files.0
   reader = new FileReader!
@@ -490,7 +490,7 @@ head-icon-select = (evt) ->
     else
       $ \#head-icon-size .css \color, \#900
       $ \#head-upload-btn .addClass \disabled .removeClass \btn-primary .prop \disabled true
-    
+
   reader.readAsDataURL f
 
 fu = document.getElementById \head-upload
