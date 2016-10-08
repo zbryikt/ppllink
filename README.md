@@ -1,4 +1,4 @@
-ppllink
+ppllink - 公眾人物關係圖
 =======
 
 Visualization of Relationship between Public Figures
